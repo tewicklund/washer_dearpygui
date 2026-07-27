@@ -55,14 +55,14 @@ def worker():
     x=0
     with open('dummy_log.csv','w') as dummy_file:
         dummy_file.write('sample_num,epoch_timestamp_ms,human_timestamp,')
-        dummy_file.write(f'cold_temp ({get_cold_temp_unit}),')
-        dummy_file.write(f'hot_temp ({get_hot_temp_unit}),')
-        dummy_file.write(f'cold_pres ({get_cold_pres_unit}),')
-        dummy_file.write(f'hot_pres ({get_hot_pres_unit}),')
-        dummy_file.write(f'cold_flow ({get_cold_flow_unit}),')
-        dummy_file.write(f'hot_flow ({get_hot_flow_unit}),')
-        dummy_file.write(f'near_ambi ({get_temp_rh_near_unit}),')
-        dummy_file.write(f'far_ambi ({get_temp_rh_far_unit}),\n')
+        dummy_file.write(f'cold_temp ({get_cold_temp_unit()}),')
+        dummy_file.write(f'hot_temp ({get_hot_temp_unit()}),')
+        dummy_file.write(f'cold_pres ({get_cold_pres_unit()}),')
+        dummy_file.write(f'hot_pres ({get_hot_pres_unit()}),')
+        dummy_file.write(f'cold_flow ({get_cold_flow_unit()}),')
+        dummy_file.write(f'hot_flow ({get_hot_flow_unit()}),')
+        dummy_file.write(f'near_ambi ({get_temp_rh_near_unit()}),')
+        dummy_file.write(f'far_ambi ({get_temp_rh_far_unit()}),\n')
 
 
     while not stop_event.is_set():
