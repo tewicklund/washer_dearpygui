@@ -1,2 +1,3 @@
 screeninfo
 dearpygui
+requests

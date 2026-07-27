@@ -13,6 +13,8 @@ table_names=["Hot Temp.","Cold Temp.","Hot Pres.","Cold Pres.","Hot Flow","Cold 
 table_port_numbers=[3,7,2,6,1,5,0,4]
 
 
+
+
 # adjust vertical sizing for all GUI elements
 viewport_width,viewport_height=compute_window_size(960,720)
 thin_col_width=0.06*viewport_width
