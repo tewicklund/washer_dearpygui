@@ -5,10 +5,68 @@ import struct
 import urllib
 import json
 import urllib.request
+from datetime import datetime
+import time
 
 HUB_URL = "http://192.168.99.162"
-FLOW_SENSOR_ALIAS = "master1port4"
+COLD_TEMP_ALIAS = "master1port0"
+HOT_TEMP_ALIAS = "master1port1"
+COLD_PRESSURE_ALIAS = "master1port2"
+HOT_PRESSURE_ALIAS = "master1port3"
+COLD_FLOW_SENSOR_ALIAS = "master1port4"
+HOT_FLOW_SENSOR_ALIAS = "master1port5"
+NEAR_AMBIENT_ALIAS = "master1port6"
+NEAR_AMBIENT_ALIAS = "master1port7"
 
+
+# function for sizing UI window (viewport) based on primary monitor width and height
+def compute_window_size(width=None, height=None):
+
+    all_monitors=get_monitors()
+
+    main_monitor=max(all_monitors,key=lambda monitor: monitor.width * monitor.height)
+    main_width=main_monitor.width
+    main_height=main_monitor.height
+
+    # defaults to 75% of biggest monitor's width and height
+    viewport_width=int(main_width*0.9)
+    viewport_height=int(main_height*0.9)
+
+    # OVERRIDE: User can enter their own custom viewport size
+    if width is not None and height is not None:
+        viewport_width=width
+        viewport_height=height
+
+    return viewport_width,viewport_height
+
+def ordinal_suffix(day: int) -> str:
+    """Return a day number with its English ordinal suffix."""
+    if 11 <= day % 100 <= 13:
+        suffix = "th"
+    else:
+        suffix = {1: "st", 2: "nd", 3: "rd"}.get(day % 10, "th")
+
+    return f"{day}{suffix}"
+
+
+def make_timestamp(sample_number: int) -> dict:
+    """Generate identifiers and timestamps for one logged sample."""
+    now = datetime.now()
+
+    epoch_ms = time.time_ns() // 1_000_000
+
+    readable_time = (
+        f"{now.strftime('%B')} "
+        f"{ordinal_suffix(now.day)} "
+        f"{now.year} at "
+        f"{now.strftime('%H:%M:%S')}"
+    )
+
+    return {
+        "sample_num": sample_number,
+        "epoch_timestamp_ms": epoch_ms,
+        "human_timestamp": readable_time,
+    }
 
 def _get_byte_array(url: str) -> list[int]:
     """GET an IO-Link value and return its byte array."""
@@ -40,11 +98,29 @@ def _get_byte_array(url: str) -> list[int]:
 
     return value
 
+def get_cold_temp():
+    return "UNKNOWN"
+def get_cold_temp_unit():
+    return "°F"
+def get_hot_temp():
+    return "UNKNOWN"
+def get_hot_temp_unit():
+    return "°F"
 
-def get_flow() -> float:
+def get_cold_pres():
+    return "UNKNOWN"
+def get_cold_pres_unit():
+    return "psig"
+def get_hot_pres():
+    return "UNKNOWN"
+def get_hot_pres_unit():
+    return "psig"
+
+
+def get_cold_flow() -> float:
     """Return the current flow rate in L/s."""
     url = (
-        f"{HUB_URL}/iolink/v1/devices/{FLOW_SENSOR_ALIAS}"
+        f"{HUB_URL}/iolink/v1/devices/{COLD_FLOW_SENSOR_ALIAS}"
         "/processdata/getdata/value?format=byteArray"
     )
 
@@ -56,10 +132,10 @@ def get_flow() -> float:
     return struct.unpack(">f", bytes(process_data[8:12]))[0]
 
 
-def get_flow_unit() -> str:
+def get_cold_flow_unit() -> str:
     """Return the flow unit selected in the Picomag configuration."""
     url = (
-        f"{HUB_URL}/iolink/v1/devices/{FLOW_SENSOR_ALIAS}"
+        f"{HUB_URL}/iolink/v1/devices/{COLD_FLOW_SENSOR_ALIAS}"
         "/parameters/550/value/?format=byteArray"
     )
 
@@ -76,26 +152,20 @@ def get_flow_unit() -> str:
     }
 
     return units.get(unit_number, f"unknown unit ({unit_number})")
+def get_hot_flow():
+    return 'UNKNOWN'
+def get_hot_flow_unit():
+    return 'gal/min'
+def get_temp_rh_near():
+    return 'UNKNOWN'
+def get_temp_rh_near_unit():
+    return """°F/%RH"""
+def get_temp_rh_far():
+    return 'UNKNOWN'
+def get_temp_rh_far_unit():
+    return """°F/%RH"""
 
-# function for sizing UI window (viewport) based on primary monitor width and height
-def compute_window_size(width=None, height=None):
 
-    all_monitors=get_monitors()
-
-    main_monitor=max(all_monitors,key=lambda monitor: monitor.width * monitor.height)
-    main_width=main_monitor.width
-    main_height=main_monitor.height
-
-    # defaults to 75% of biggest monitor's width and height
-    viewport_width=int(main_width*0.9)
-    viewport_height=int(main_height*0.9)
-
-    # OVERRIDE: User can enter their own custom viewport size
-    if width is not None and height is not None:
-        viewport_width=width
-        viewport_height=height
-
-    return viewport_width,viewport_height
 
 # example usage
-print(f"Cold water flow: {get_flow()} {get_flow_unit()}")
+#print(f"Cold water flow: {get_flow()} {get_flow_unit()}")
