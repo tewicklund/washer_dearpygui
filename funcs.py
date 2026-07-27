@@ -10,23 +10,32 @@ FLOW_SENSOR_ALIAS = "master1port4"
 
 
 def _get_byte_array(url: str) -> list[int]:
+    """GET an IO-Link value and return its byte array."""
     with urllib.request.urlopen(url, timeout=1.0) as response:
         data = json.load(response)
 
-    try:
-        iolink = data["iolink"]
-        valid = iolink["valid"]
-        value = iolink["value"]
-    except KeyError as error:
-        raise KeyError(
-            f"Unexpected hub response structure: {data!r}"
-        ) from error
+    if not isinstance(data, dict):
+        raise TypeError(f"Expected a dictionary, got {data!r}")
 
-    if not valid:
-        raise RuntimeError(f"IO-Link value is invalid: {data!r}")
+    # Process-data responses are wrapped inside "iolink".
+    payload = data.get("iolink", data)
+
+    if not isinstance(payload, dict):
+        raise TypeError(f"Unexpected response structure: {data!r}")
+
+    # Some responses include a validity flag; parameter reads may not.
+    if payload.get("valid") is False:
+        raise RuntimeError(f"IO-Link value is marked invalid: {data!r}")
+
+    value = payload.get("value")
+
+    if value is None:
+        raise KeyError(f"No 'value' field in hub response: {data!r}")
 
     if not isinstance(value, list):
-        raise TypeError(f"Expected a byte list, got: {value!r}")
+        raise TypeError(
+            f"Expected 'value' to be a list, got {type(value).__name__}: {value!r}"
+        )
 
     return value
 
