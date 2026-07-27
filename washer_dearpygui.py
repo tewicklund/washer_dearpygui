@@ -71,14 +71,14 @@ def worker():
         print(timestamp_data)
         with open('dummy_log.csv','a') as dummy_file:
             dummy_file.write(f" {timestamp_data['sample_num']} , {timestamp_data['epoch_timestamp_ms']} , {timestamp_data['human_timestamp']},")
-            dummy_file.write(f'cold_temp ({get_cold_temp()}),')
-            dummy_file.write(f'hot_temp ({get_hot_temp()}),')
-            dummy_file.write(f'cold_pres ({get_cold_pres()}),')
-            dummy_file.write(f'hot_pres ({get_hot_pres()}),')
-            dummy_file.write(f'cold_flow ({get_cold_flow()}),')
-            dummy_file.write(f'hot_flow ({get_hot_flow()}),')
-            dummy_file.write(f'near_ambi ({get_temp_rh_near()}),')
-            dummy_file.write(f'far_ambi ({get_temp_rh_far()}),\n')
+            dummy_file.write(f'{get_cold_temp()},')
+            dummy_file.write(f'{get_hot_temp()},')
+            dummy_file.write(f'{get_cold_pres()},')
+            dummy_file.write(f'{get_hot_pres()},')
+            dummy_file.write(f'{get_cold_flow()},')
+            dummy_file.write(f'{get_hot_flow()},')
+            dummy_file.write(f'{get_temp_rh_near()},')
+            dummy_file.write(f'{get_temp_rh_far()},\n')
         
         
         time.sleep(1)
