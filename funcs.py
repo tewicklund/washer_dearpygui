@@ -4,6 +4,7 @@ from screeninfo import get_monitors
 import struct
 import urllib
 import json
+import urllib.request
 
 HUB_URL = "http://192.168.99.162"
 FLOW_SENSOR_ALIAS = "master1port4"
