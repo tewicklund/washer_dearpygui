@@ -3,22 +3,49 @@
 from screeninfo import get_monitors
 import struct
 import requests
+import urllib
+import json
 
 HUB_URL = "http://192.168.99.167"
 FLOW_SENSOR_ALIAS = "master1port4"
 
 
-def _get_byte_array(url: str) -> list[int]:
-    """Send a GET request and extract the returned byte array."""
-    response = requests.get(url, timeout=1.0)
-    response.raise_for_status()
+# def _get_byte_array(url: str) -> list[int]:
+#     """Send a GET request and extract the returned byte array."""
+#     response = requests.get(url, timeout=1.0)
+#     response.raise_for_status()
 
-    data = response.json()
+#     data = response.json()
+
+#     if data.get("valid") is False:
+#         raise RuntimeError("The IO-Link value is marked invalid.")
+
+#     return data["value"]
+def _get_byte_array(url: str) -> list[int]:
+    with urllib.request.urlopen(url, timeout=1.0) as response:
+        data = json.load(response)
+
+    if not isinstance(data, dict):
+        raise TypeError(
+            f"Expected a dictionary, got {type(data).__name__}: {data!r}"
+        )
 
     if data.get("valid") is False:
-        raise RuntimeError("The IO-Link value is marked invalid.")
+        raise RuntimeError(f"IO-Link value is marked invalid: {data!r}")
 
-    return data["value"]
+    if "value" not in data:
+        raise KeyError(
+            f"Response has no exact 'value' key. "
+            f"Keys received: {list(data.keys())!r}. "
+            f"Full response: {data!r}"
+        )
+
+    value = data["value"]
+
+    if not isinstance(value, list):
+        raise TypeError(f"Expected 'value' to be a list, got: {value!r}")
+
+    return value
 
 
 def get_flow() -> float:
