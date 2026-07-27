@@ -2,7 +2,6 @@
 
 from screeninfo import get_monitors
 import struct
-import requests
 import urllib
 import json
 
@@ -14,12 +13,22 @@ def _get_byte_array(url: str) -> list[int]:
     with urllib.request.urlopen(url, timeout=1.0) as response:
         data = json.load(response)
 
-    iolink = data["iolink"]
+    try:
+        iolink = data["iolink"]
+        valid = iolink["valid"]
+        value = iolink["value"]
+    except KeyError as error:
+        raise KeyError(
+            f"Unexpected hub response structure: {data!r}"
+        ) from error
 
-    if not iolink["valid"]:
-        raise RuntimeError("The IO-Link value is marked invalid.")
+    if not valid:
+        raise RuntimeError(f"IO-Link value is invalid: {data!r}")
 
-    return iolink["value"]
+    if not isinstance(value, list):
+        raise TypeError(f"Expected a byte list, got: {value!r}")
+
+    return value
 
 
 def get_flow() -> float:
@@ -79,4 +88,4 @@ def compute_window_size(width=None, height=None):
     return viewport_width,viewport_height
 
 # example usage
-print(f"Cold water flow: {get_flow()} {get_flow_unit}")
+print(f"Cold water flow: {get_flow()} {get_flow_unit()}")
