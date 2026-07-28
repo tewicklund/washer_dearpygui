@@ -136,8 +136,9 @@ def get_cold_flow_value() -> float:
     if len(process_data) != 15:
         raise ValueError(f"Expected 15 process-data bytes, got {len(process_data)}.")
 
+    cold_flow_value=struct.unpack(">f", bytes(process_data[8:12]))[0]
 
-    return struct.unpack(">f", bytes(process_data[8:12]))[0]
+    return round(cold_flow_value,3)
 
 
 def get_cold_flow_unit() -> str:

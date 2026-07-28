@@ -168,6 +168,7 @@ def worker():
                 requested_value=get_value_functions[port_num]()
                 dummy_file.write(f'{requested_value},')
                 dpg.set_value(f"X{port_num}_value",requested_value)
+            dummy_file.write('\n')
             
             # if port_broken_bools[0]==0:
             #     cold_temp_value=get_cold_temp_value()
@@ -215,10 +216,13 @@ def worker():
             pass
 
     dpg.set_value('status_text','Finishing')
-    for port in range(8):
-        dpg.set_value(f'X{port}_value','*****')
-        dpg.set_value(f'X{port}_unit','*****')
-        dpg.bind_item_theme(f'X{port}_port', washer_theme)
+    for port_num in range(8):
+            dpg.set_value(f'X{port_num}_value','*****')
+            dpg.set_value(f'X{port_num}_unit','*****')
+            dpg.bind_item_theme(f'X{port_num}_unit',washer_theme)
+            dpg.bind_item_theme(f'X{port_num}_value',washer_theme)
+            dpg.bind_item_theme(f'X{port_num}_port',washer_theme)
+            dpg.bind_item_theme(f'X{port_num}_name',washer_theme)
     dpg.set_value('status_text','Ready')
 
 # add a font registry, needed for having next of different sizes
