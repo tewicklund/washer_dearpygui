@@ -52,10 +52,13 @@ def start_test():
 def stop_test():
     stop_event.set()
     dpg.set_value('status_text','Stopped')
-    for port in range(8):
-        dpg.set_value(f'X{port}_value','*****')
-        dpg.set_value(f'X{port}_unit','*****')
-        dpg.bind_item_theme(f'X{port}_port', washer_theme)
+    for port_num in range(8):
+        dpg.set_value(f'X{port_num}_value','*****')
+        dpg.set_value(f'X{port_num}_unit','*****')
+        dpg.bind_item_theme(f'X{port_num}_unit',washer_theme)
+        dpg.bind_item_theme(f'X{port_num}_value',washer_theme)
+        dpg.bind_item_theme(f'X{port_num}_port',washer_theme)
+        dpg.bind_item_theme(f'X{port_num}_name',washer_theme)
 
 def worker():
     dpg.set_value('status_text','Starting')
@@ -73,7 +76,10 @@ def worker():
                 requested_unit='???'
                 port_broken_bools[port_num]=1
                 dpg.bind_item_theme(f'X{port_num}_unit',red_theme)
-            dummy_file.write(f'{table_names[port_num]} ({requested_unit}).')
+                dpg.bind_item_theme(f'X{port_num}_value',red_theme)
+                dpg.bind_item_theme(f'X{port_num}_port',red_theme)
+                dpg.bind_item_theme(f'X{port_num}_name',red_theme)
+            dummy_file.write(f'{table_names[port_num]} ({requested_unit}),')
             dpg.set_value(f"X{port_num}_unit",requested_unit)
 
         # cold_temp_unit=get_cold_temp_unit()
@@ -159,7 +165,7 @@ def worker():
             dummy_file.write(f" {timestamp_data['sample_num']} , {timestamp_data['epoch_timestamp_ms']} , {timestamp_data['human_timestamp']},")
 
             for port_num in range(8):
-                requested_value=get_value_functions[port_num]
+                requested_value=get_value_functions[port_num]()
                 dummy_file.write(f'{requested_value},')
                 dpg.set_value(f"X{port_num}_value",requested_value)
             
