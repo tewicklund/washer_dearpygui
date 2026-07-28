@@ -14,8 +14,8 @@ table_port_numbers=[3,7,2,6,1,5,0,4]
 
 # adjust vertical sizing for all GUI elements
 viewport_width,viewport_height=compute_window_size(960,720)
-thin_col_width=0.07*viewport_width
-thick_col_width=0.13*viewport_width
+thin_col_width=0.08*viewport_width
+thick_col_width=0.14*viewport_width
 middle_col_width=0.04*viewport_width
 
 
@@ -161,14 +161,14 @@ with dpg.window( pos=(0,title_height),width=viewport_width,height=table_height,n
         
         dpg.add_table_column(width_fixed=True, init_width_or_weight=thin_col_width)
         dpg.add_table_column(width_fixed=True, init_width_or_weight=thick_col_width)
-        dpg.add_table_column(width_fixed=True, init_width_or_weight=thick_col_width)
+        dpg.add_table_column(width_fixed=True, init_width_or_weight=thin_col_width)
         dpg.add_table_column(width_fixed=True, init_width_or_weight=thin_col_width)
 
         dpg.add_table_column(width_fixed=True, init_width_or_weight=middle_col_width)
 
         dpg.add_table_column(width_fixed=True, init_width_or_weight=thin_col_width)
         dpg.add_table_column(width_fixed=True, init_width_or_weight=thick_col_width)
-        dpg.add_table_column(width_fixed=True, init_width_or_weight=thick_col_width)
+        dpg.add_table_column(width_fixed=True, init_width_or_weight=thin_col_width)
         dpg.add_table_column(width_fixed=True, init_width_or_weight=thin_col_width)
 
 
