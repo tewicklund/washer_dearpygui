@@ -55,14 +55,38 @@ def worker():
     x=0
     with open('dummy_log.csv','w') as dummy_file:
         dummy_file.write('sample_num,epoch_timestamp_ms,human_timestamp,')
-        dummy_file.write(f'cold_temp ({get_cold_temp_unit()}),')
-        dummy_file.write(f'hot_temp ({get_hot_temp_unit()}),')
-        dummy_file.write(f'cold_pres ({get_cold_pres_unit()}),')
-        dummy_file.write(f'hot_pres ({get_hot_pres_unit()}),')
-        dummy_file.write(f'cold_flow ({get_cold_flow_unit()}),')
-        dummy_file.write(f'hot_flow ({get_hot_flow_unit()}),')
-        dummy_file.write(f'near_ambi ({get_temp_rh_near_unit()}),')
-        dummy_file.write(f'far_ambi ({get_temp_rh_far_unit()}),\n')
+
+        cold_temp_unit=get_cold_temp_unit()
+        dummy_file.write(f'cold_temp ({cold_temp_unit}),')
+        dpg.set_value("X0_unit",cold_temp_unit)
+
+        hot_temp_unit=get_hot_temp_unit()
+        dummy_file.write(f'hot_temp ({hot_temp_unit}),')
+        dpg.set_value("X1_unit",hot_temp_unit)
+
+        cold_pres_unit=get_cold_pres_unit()
+        dummy_file.write(f'cold_pres ({cold_pres_unit}),')
+        dpg.set_value("X2_unit",cold_pres_unit)
+
+        hot_pres_unit=get_hot_pres_unit()
+        dummy_file.write(f'hot_pres ({hot_pres_unit}),')
+        dpg.set_value("X3_unit",hot_pres_unit)
+
+        cold_flow_unit=get_cold_flow_unit()
+        dummy_file.write(f'cold_flow ({cold_flow_unit}),')
+        dpg.set_value("X4_unit",cold_flow_unit)
+
+        hot_flow_unit=get_hot_flow_unit()
+        dummy_file.write(f'hot_flow ({hot_flow_unit}),')
+        dpg.set_value("X5_unit",hot_flow_unit)
+
+        temp_rh_near_unit=get_temp_rh_near_unit()
+        dummy_file.write(f'near_ambi ({temp_rh_near_unit}),')
+        dpg.set_value("X6_unit",temp_rh_near_unit)
+
+        temp_rh_far_unit=get_temp_rh_far_unit()
+        dummy_file.write(f'far_ambi ({temp_rh_far_unit}),\n')
+        dpg.set_value("X7_unit",temp_rh_far_unit)
 
 
     while not stop_event.is_set():
@@ -72,6 +96,7 @@ def worker():
         with open('dummy_log.csv','a') as dummy_file:
             dummy_file.write(f" {timestamp_data['sample_num']} , {timestamp_data['epoch_timestamp_ms']} , {timestamp_data['human_timestamp']},")
             dummy_file.write(f'{get_cold_temp()},')
+
             dummy_file.write(f'{get_hot_temp()},')
             dummy_file.write(f'{get_cold_pres()},')
             dummy_file.write(f'{get_hot_pres()},')
@@ -157,10 +182,10 @@ with dpg.window( pos=(0,title_height),width=viewport_width,height=table_height,n
                     dpg.add_text(table_names[entry_number],tag=f'X{str(entry_number)}_name')
                 with dpg.group():
                     dpg.add_spacer(height=table_text_pad_v)
-                    dpg.add_text("None",tag=f'X{str(entry_number)}_value')
+                    dpg.add_text("UNKNOWN",tag=f'X{str(entry_number)}_value')
                 with dpg.group():
                     dpg.add_spacer(height=table_text_pad_v)
-                    dpg.add_text("None",tag=f'X{str(entry_number)}_unit')
+                    dpg.add_text("UNKNOWN",tag=f'X{str(entry_number)}_unit')
 
                 dpg.add_text("   ")
 
@@ -173,10 +198,10 @@ with dpg.window( pos=(0,title_height),width=viewport_width,height=table_height,n
                     dpg.add_text(table_names[entry_number],tag=f'X{str(entry_number)}_name')
                 with dpg.group():
                     dpg.add_spacer(height=table_text_pad_v)
-                    dpg.add_text("None",tag=f'X{str(entry_number)}_value')
+                    dpg.add_text("UNKNOWN",tag=f'X{str(entry_number)}_value')
                 with dpg.group():
                     dpg.add_spacer(height=table_text_pad_v)
-                    dpg.add_text("None",tag=f'X{str(entry_number)}_unit')
+                    dpg.add_text("UNKNOWN",tag=f'X{str(entry_number)}_unit')
             
 
          
