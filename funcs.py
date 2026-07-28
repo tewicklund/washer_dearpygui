@@ -102,26 +102,26 @@ def _get_byte_array(url: str) -> list[int]:
 
     return value
 
-def get_cold_temp():
+def get_cold_temp_value():
     return "UNKNOWN"
 def get_cold_temp_unit():
     return "°F"
-def get_hot_temp():
+def get_hot_temp_value():
     return "UNKNOWN"
 def get_hot_temp_unit():
     return "°F"
 
-def get_cold_pres():
+def get_cold_pres_value():
     return "UNKNOWN"
 def get_cold_pres_unit():
     return "psig"
-def get_hot_pres():
+def get_hot_pres_value():
     return "UNKNOWN"
 def get_hot_pres_unit():
     return "psig"
 
 
-def get_cold_flow() -> float:
+def get_cold_flow_value() -> float:
     """Return the current flow rate."""
     url = (
         f"{HUB_URL}/iolink/v1/devices/{COLD_FLOW_SENSOR_ALIAS}"
@@ -157,15 +157,15 @@ def get_cold_flow_unit() -> str:
     }
 
     return units.get(unit_number, f"unknown unit ({unit_number})")
-def get_hot_flow():
+def get_hot_flow_value():
     return '*****'
 def get_hot_flow_unit():
     return 'gal/min'
-def get_temp_rh_near():
+def get_temp_rh_near_value():
     return '*****'
 def get_temp_rh_near_unit():
     return """°F/%RH"""
-def get_temp_rh_far():
+def get_temp_rh_far_value():
     return '*****'
 def get_temp_rh_far_unit():
     return """°F/%RH"""

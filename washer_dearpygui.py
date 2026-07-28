@@ -91,44 +91,48 @@ def worker():
         x+=1
         timestamp_data=make_timestamp(x)
         print(timestamp_data)
+        prev_ts=time.time()
         with open('dummy_log.csv','a') as dummy_file:
             dummy_file.write(f" {timestamp_data['sample_num']} , {timestamp_data['epoch_timestamp_ms']} , {timestamp_data['human_timestamp']},")
 
-            cold_temp=get_cold_temp()
-            dummy_file.write(f'{cold_temp},')
-            dpg.set_value("X0_value",cold_temp)
+            cold_temp_value=get_cold_temp_value()
+            dummy_file.write(f'{cold_temp_value},')
+            dpg.set_value("X0_value",cold_temp_value)
 
-            hot_temp=get_hot_temp()
-            dummy_file.write(f'{hot_temp},')
-            dpg.set_value("X1_value",hot_temp)
+            hot_temp_value=get_hot_temp_value()
+            dummy_file.write(f'{hot_temp_value},')
+            dpg.set_value("X1_value",hot_temp_value)
 
-            cold_pres=get_cold_pres()
-            dummy_file.write(f'{cold_pres},')
-            dpg.set_value('X2_value',cold_pres)
+            cold_pres_value=get_cold_pres_value()
+            dummy_file.write(f'{cold_pres_value},')
+            dpg.set_value('X2_value',cold_pres_value)
 
-            hot_pres=get_hot_pres()
-            dummy_file.write(f'{hot_pres},')
-            dpg.set_value('X3_value',hot_pres)
+            hot_pres_value=get_hot_pres_value()
+            dummy_file.write(f'{hot_pres_value},')
+            dpg.set_value('X3_value',hot_pres_value)
 
-            cold_flow=get_cold_flow()
-            dummy_file.write(f"{cold_flow:.3f},")
-            dpg.set_value('X4_value',f"{cold_flow:.1f}")
+            cold_flow_value=get_cold_flow_value()
+            dummy_file.write(f"{cold_flow_value:.3f},")
+            dpg.set_value('X4_value',f"{cold_flow_value:.1f}")
 
-            hot_flow=get_hot_flow()
-            dummy_file.write(f'{get_hot_flow()},')
-            dpg.set_value('X5_value',hot_flow)
+            hot_flow_value=get_hot_flow_value()
+            dummy_file.write(f'{hot_flow_value},')
+            dpg.set_value('X5_value',hot_flow_value)
 
-            temp_rh_near=get_temp_rh_near()
-            dummy_file.write(f'{temp_rh_near},')
-            dpg.set_value('X6_value',temp_rh_near)
+            temp_rh_near_value=get_temp_rh_near_value()
+            dummy_file.write(f'{temp_rh_near_value},')
+            dpg.set_value('X6_value',temp_rh_near_value)
 
-            temp_rh_far=get_temp_rh_far()
-            dummy_file.write(f'{temp_rh_far},\n')
-            dpg.set_value('X7_value',temp_rh_far)
-        
-        
-        time.sleep(1)
-    print("worked")
+            temp_rh_far_value=get_temp_rh_far_value()
+            dummy_file.write(f'{temp_rh_far_value},\n')
+            dpg.set_value('X7_value',temp_rh_far_value)
+
+        if (time.time()-prev_ts>1):
+            print("WARNING: POLLING RATE IS TOO FAST")
+        while (time.time()-prev_ts<1):
+            pass
+
+    print("stopping")
 
 # add a font registry, needed for having next of different sizes
 with dpg.font_registry():
@@ -224,57 +228,6 @@ with dpg.window( pos=(0,title_height),width=viewport_width,height=table_height,n
                     dpg.add_spacer(height=table_text_pad_v)
                     dpg.add_text("*****",tag=f'X{str(entry_number)}_unit')
             
-
-         
-
-        # with dpg.table_row(height = table_row_height):
-        #     entry_number=2
-        #     dpg.add_text(f'X{str(entry_number)}',tag=f'X{str(entry_number)}_port')
-        #     dpg.add_text(table_names[entry_number],tag=f'X{str(entry_number)}_name')
-        #     dpg.add_text("None",tag=f'X{str(entry_number)}_value')
-        #     dpg.add_text("None",tag=f'X{str(entry_number)}_unit')
-
-             
-
-        #     entry_number=6
-        #     dpg.add_text(f'X{str(entry_number)}',tag=f'X{str(entry_number)}_port')
-        #     dpg.add_text(table_names[entry_number],tag=f'X{str(entry_number)}_name')
-        #     dpg.add_text("None",tag=f'X{str(entry_number)}_value')
-        #     dpg.add_text("None",tag=f'X{str(entry_number)}_unit')
-
-         
-
-        # with dpg.table_row(height = table_row_height):
-        #     entry_number=1
-        #     dpg.add_text(f'X{str(entry_number)}',tag=f'X{str(entry_number)}_port')
-        #     dpg.add_text(table_names[entry_number],tag=f'X{str(entry_number)}_name')
-        #     dpg.add_text("None",tag=f'X{str(entry_number)}_value')
-        #     dpg.add_text("None",tag=f'X{str(entry_number)}_unit')
-
-             
-
-        #     entry_number=5
-        #     dpg.add_text(f'X{str(entry_number)}',tag=f'X{str(entry_number)}_port')
-        #     dpg.add_text(table_names[entry_number],tag=f'X{str(entry_number)}_name')
-        #     dpg.add_text("None",tag=f'X{str(entry_number)}_value')
-        #     dpg.add_text("None",tag=f'X{str(entry_number)}_unit')
-
-         
-
-        # with dpg.table_row(height = table_row_height):
-        #     entry_number=0
-        #     dpg.add_text(f'X{str(entry_number)}',tag=f'X{str(entry_number)}_port')
-        #     dpg.add_text(table_names[entry_number],tag=f'X{str(entry_number)}_name')
-        #     dpg.add_text("None",tag=f'X{str(entry_number)}_value')
-        #     dpg.add_text("None",tag=f'X{str(entry_number)}_unit')
-
-             
-
-        #     entry_number=4
-        #     dpg.add_text(f'X{str(entry_number)}',tag=f'X{str(entry_number)}_port')
-        #     dpg.add_text(table_names[entry_number],tag=f'X{str(entry_number)}_name')
-        #     dpg.add_text("None",tag=f'X{str(entry_number)}_value')
-        #     dpg.add_text("None",tag=f'X{str(entry_number)}_unit')
 
 dpg.bind_item_theme("table_window",washer_theme)
 
