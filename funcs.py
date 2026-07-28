@@ -122,7 +122,7 @@ def get_hot_pres_unit():
 
 
 def get_cold_flow() -> float:
-    """Return the current flow rate in L/s."""
+    """Return the current flow rate."""
     url = (
         f"{HUB_URL}/iolink/v1/devices/{COLD_FLOW_SENSOR_ALIAS}"
         "/processdata/getdata/value?format=byteArray"
@@ -132,6 +132,7 @@ def get_cold_flow() -> float:
 
     if len(process_data) != 15:
         raise ValueError(f"Expected 15 process-data bytes, got {len(process_data)}.")
+
 
     return struct.unpack(">f", bytes(process_data[8:12]))[0]
 

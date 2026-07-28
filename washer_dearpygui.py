@@ -110,8 +110,8 @@ def worker():
             dpg.set_value('X3_value',hot_pres)
 
             cold_flow=get_cold_flow()
-            dummy_file.write(f'{cold_flow},')
-            dpg.set_value('X4_value',cold_flow)
+            dummy_file.write(f"{cold_flow:.3f},")
+            dpg.set_value('X4_value',f"{cold_flow:.1f}")
 
             hot_flow=get_hot_flow()
             dummy_file.write(f'{get_hot_flow()},')
