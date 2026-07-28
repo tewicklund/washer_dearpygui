@@ -109,16 +109,16 @@ def get_cold_temp_unit():
 def get_hot_temp_value():
     return "*****"
 def get_hot_temp_unit():
-    return "cold_temp_broken"
+    return "hot_temp_broken"
 
 def get_cold_pres_value():
     return "*****"
 def get_cold_pres_unit():
-    return "cold_temp_broken"
+    return "cold_pres_broken"
 def get_hot_pres_value():
     return "*****"
 def get_hot_pres_unit():
-    return "cold_temp_broken"
+    return "hot_pres_broken"
 
 
 def get_cold_flow_value() -> float:
