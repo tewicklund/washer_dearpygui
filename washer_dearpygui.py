@@ -67,7 +67,7 @@ def worker():
         cold_temp_unit=get_cold_temp_unit()
         if cold_temp_unit=='cold_temp_broken':
             port_broken_bools[0]=1
-            dummy_file.write('COLD TEMP BROKEN')
+            dummy_file.write('COLD TEMP BROKEN,')
             dpg.set_value("X0_unit",'???')
             dpg.bind_item_theme('X0_port', red_theme)
         else:
@@ -77,7 +77,7 @@ def worker():
         hot_temp_unit=get_hot_temp_unit()
         if hot_temp_unit=='hot_temp_broken':
             port_broken_bools[1]=1
-            dummy_file.write('HOT TEMP BROKEN')
+            dummy_file.write('HOT TEMP BROKEN,')
             dpg.set_value("X1_unit",'???')
             dpg.bind_item_theme('X1_port', red_theme)
         else:
@@ -87,7 +87,7 @@ def worker():
         cold_pres_unit=get_cold_pres_unit()
         if cold_pres_unit=='cold_pres_broken':
             port_broken_bools[2]=1
-            dummy_file.write('COLD PRES BROKEN')
+            dummy_file.write('COLD PRES BROKEN,')
             dpg.set_value("X2_unit",'???')
             dpg.bind_item_theme('X2_port', red_theme)
         else:
@@ -97,7 +97,7 @@ def worker():
         hot_pres_unit=get_hot_pres_unit()
         if hot_pres_unit=='hot_pres_broken':
             port_broken_bools[3]=1
-            dummy_file.write('HOT PRES BROKEN')
+            dummy_file.write('HOT PRES BROKEN,')
             dpg.set_value("X3_unit",'???')
             dpg.bind_item_theme('X3_port', red_theme)
         else:
@@ -107,7 +107,7 @@ def worker():
         cold_flow_unit=get_cold_flow_unit()
         if cold_flow_unit=='cold_flow_broken':
             port_broken_bools[4]=1
-            dummy_file.write('COLD FLOW BROKEN')
+            dummy_file.write('COLD FLOW BROKEN,')
             dpg.set_value("X4_unit",'???')
             dpg.bind_item_theme('X4_port', red_theme)
         else:
@@ -117,7 +117,7 @@ def worker():
         hot_flow_unit=get_hot_flow_unit()
         if hot_flow_unit=='hot_flow_broken':
             port_broken_bools[5]=1
-            dummy_file.write('HOT FLOW BROKEN')
+            dummy_file.write('HOT FLOW BROKEN,')
             dpg.set_value("X5_unit",'???')
             dpg.bind_item_theme('X5_port', red_theme)
         else:
@@ -127,7 +127,7 @@ def worker():
         temp_rh_near_unit=get_temp_rh_near_unit()
         if temp_rh_near_unit=='temp_rh_near_broken':
             port_broken_bools[6]=1
-            dummy_file.write('AMBIENT P6 BROKEN')
+            dummy_file.write('AMBIENT P6 BROKEN,')
             dpg.set_value("X6_unit",'???')
             dpg.bind_item_theme('X6_port', red_theme)
         else:
@@ -137,11 +137,11 @@ def worker():
         temp_rh_far_unit=get_temp_rh_far_unit()
         if temp_rh_far_unit=='temp_rh_far_broken':
             port_broken_bools[7]=1
-            dummy_file.write('AMBIENT P7 BROKEN')
+            dummy_file.write('AMBIENT P7 BROKEN,\n')
             dpg.set_value("X7_unit",'???')
             dpg.bind_item_theme('X7_port', red_theme)
         else:
-            dummy_file.write(f'far_ambi ({temp_rh_far_unit}),\n')
+            dummy_file.write(f'far_ambi ({temp_rh_far_unit})\n')
             dpg.set_value("X7_unit",temp_rh_far_unit)
 
     x=0
