@@ -11,6 +11,7 @@ dpg.create_context()
 table_names=["Cold Temp.","Hot Temp.","Cold Pres.","Hot Pres.","Cold Flow","Hot Flow","Near Ambi.","Far Ambi"]
 column_headers='sample_num,epoch_timestamp_ms,human_timestamp,'
 table_port_numbers=[3,7,2,6,1,5,0,4]
+port_broken_bools=[0,0,0,0,0,0,0,0]
 
 test_duration_samples=10
 
@@ -49,6 +50,10 @@ def start_test():
 def stop_test():
     stop_event.set()
     dpg.set_value('status_text','Stopped')
+    for port in range(8):
+        dpg.set_value(f'X{port}_value','*****')
+        dpg.set_value(f'X{port}_unit','*****')
+        dpg.bind_item_theme(f'X{port}_port', washer_theme)
 
 def worker():
     dpg.set_value('status_text','Starting')
@@ -60,36 +65,84 @@ def worker():
         dummy_file.write('sample_num,epoch_timestamp_ms,human_timestamp,')
 
         cold_temp_unit=get_cold_temp_unit()
-        dummy_file.write(f'cold_temp ({cold_temp_unit}),')
-        dpg.set_value("X0_unit",cold_temp_unit)
+        if cold_temp_unit=='cold_temp_broken':
+            port_broken_bools[0]=1
+            dummy_file.write('COLD TEMP BROKEN')
+            dpg.set_value("X0_unit",'???')
+            dpg.bind_item_theme('X0_port', red_theme)
+        else:
+            dummy_file.write(f'cold_temp ({cold_temp_unit}),')
+            dpg.set_value("X0_unit",cold_temp_unit)
 
         hot_temp_unit=get_hot_temp_unit()
-        dummy_file.write(f'hot_temp ({hot_temp_unit}),')
-        dpg.set_value("X1_unit",hot_temp_unit)
+        if hot_temp_unit=='hot_temp_broken':
+            port_broken_bools[1]=1
+            dummy_file.write('HOT TEMP BROKEN')
+            dpg.set_value("X1_unit",'???')
+            dpg.bind_item_theme('X1_port', red_theme)
+        else:
+            dummy_file.write(f'hot_temp ({hot_temp_unit}),')
+            dpg.set_value("X1_unit",hot_temp_unit)
 
         cold_pres_unit=get_cold_pres_unit()
-        dummy_file.write(f'cold_pres ({cold_pres_unit}),')
-        dpg.set_value("X2_unit",cold_pres_unit)
+        if cold_pres_unit=='cold_pres_broken':
+            port_broken_bools[2]=1
+            dummy_file.write('COLD PRES BROKEN')
+            dpg.set_value("X2_unit",'???')
+            dpg.bind_item_theme('X2_port', red_theme)
+        else:
+            dummy_file.write(f'cold_pres ({cold_pres_unit}),')
+            dpg.set_value("X2_unit",cold_pres_unit)
 
         hot_pres_unit=get_hot_pres_unit()
-        dummy_file.write(f'hot_pres ({hot_pres_unit}),')
-        dpg.set_value("X3_unit",hot_pres_unit)
+        if hot_pres_unit=='hot_pres_broken':
+            port_broken_bools[3]=1
+            dummy_file.write('HOT PRES BROKEN')
+            dpg.set_value("X3_unit",'???')
+            dpg.bind_item_theme('X3_port', red_theme)
+        else:
+            dummy_file.write(f'hot_pres ({hot_pres_unit}),')
+            dpg.set_value("X3_unit",hot_pres_unit)
 
         cold_flow_unit=get_cold_flow_unit()
-        dummy_file.write(f'cold_flow ({cold_flow_unit}),')
-        dpg.set_value("X4_unit",cold_flow_unit)
+        if cold_flow_unit=='cold_flow_broken':
+            port_broken_bools[4]=1
+            dummy_file.write('COLD FLOW BROKEN')
+            dpg.set_value("X4_unit",'???')
+            dpg.bind_item_theme('X4_port', red_theme)
+        else:
+            dummy_file.write(f'cold_flow ({cold_flow_unit}),')
+            dpg.set_value("X4_unit",cold_flow_unit)
 
         hot_flow_unit=get_hot_flow_unit()
-        dummy_file.write(f'hot_flow ({hot_flow_unit}),')
-        dpg.set_value("X5_unit",hot_flow_unit)
+        if hot_flow_unit=='hot_flow_broken':
+            port_broken_bools[5]=1
+            dummy_file.write('HOT FLOW BROKEN')
+            dpg.set_value("X5_unit",'???')
+            dpg.bind_item_theme('X5_port', red_theme)
+        else:
+            dummy_file.write(f'hot_flow ({hot_flow_unit}),')
+            dpg.set_value("X5_unit",hot_flow_unit)
 
         temp_rh_near_unit=get_temp_rh_near_unit()
-        dummy_file.write(f'near_ambi ({temp_rh_near_unit}),')
-        dpg.set_value("X6_unit",temp_rh_near_unit)
+        if temp_rh_near_unit=='temp_rh_near_broken':
+            port_broken_bools[6]=1
+            dummy_file.write('AMBIENT P6 BROKEN')
+            dpg.set_value("X6_unit",'???')
+            dpg.bind_item_theme('X6_port', red_theme)
+        else:
+            dummy_file.write(f'near_ambi ({temp_rh_near_unit}),')
+            dpg.set_value("X6_unit",temp_rh_near_unit)
 
         temp_rh_far_unit=get_temp_rh_far_unit()
-        dummy_file.write(f'far_ambi ({temp_rh_far_unit}),\n')
-        dpg.set_value("X7_unit",temp_rh_far_unit)
+        if temp_rh_far_unit=='temp_rh_far_broken':
+            port_broken_bools[7]=1
+            dummy_file.write('AMBIENT P7 BROKEN')
+            dpg.set_value("X7_unit",'???')
+            dpg.bind_item_theme('X7_port', red_theme)
+        else:
+            dummy_file.write(f'far_ambi ({temp_rh_far_unit}),\n')
+            dpg.set_value("X7_unit",temp_rh_far_unit)
 
     x=0
     while not stop_event.is_set() and x<test_duration_samples:
@@ -101,37 +154,45 @@ def worker():
         with open('dummy_log.csv','a') as dummy_file:
             dummy_file.write(f" {timestamp_data['sample_num']} , {timestamp_data['epoch_timestamp_ms']} , {timestamp_data['human_timestamp']},")
 
-            cold_temp_value=get_cold_temp_value()
-            dummy_file.write(f'{cold_temp_value},')
-            dpg.set_value("X0_value",cold_temp_value)
+            if port_broken_bools[0]==0:
+                cold_temp_value=get_cold_temp_value()
+                dummy_file.write(f'{cold_temp_value},')
+                dpg.set_value("X0_value",cold_temp_value)
 
-            hot_temp_value=get_hot_temp_value()
-            dummy_file.write(f'{hot_temp_value},')
-            dpg.set_value("X1_value",hot_temp_value)
+            if port_broken_bools[1]==0:
+                hot_temp_value=get_hot_temp_value()
+                dummy_file.write(f'{hot_temp_value},')
+                dpg.set_value("X1_value",hot_temp_value)
 
-            cold_pres_value=get_cold_pres_value()
-            dummy_file.write(f'{cold_pres_value},')
-            dpg.set_value('X2_value',cold_pres_value)
+            if port_broken_bools[2]==0:
+                cold_pres_value=get_cold_pres_value()
+                dummy_file.write(f'{cold_pres_value},')
+                dpg.set_value('X2_value',cold_pres_value)
 
-            hot_pres_value=get_hot_pres_value()
-            dummy_file.write(f'{hot_pres_value},')
-            dpg.set_value('X3_value',hot_pres_value)
+            if port_broken_bools[3]==0:
+                hot_pres_value=get_hot_pres_value()
+                dummy_file.write(f'{hot_pres_value},')
+                dpg.set_value('X3_value',hot_pres_value)
 
-            cold_flow_value=get_cold_flow_value()
-            dummy_file.write(f"{cold_flow_value:.3f},")
-            dpg.set_value('X4_value',f"{cold_flow_value:.1f}")
+            if port_broken_bools[4]==0:
+                cold_flow_value=get_cold_flow_value()
+                dummy_file.write(f"{cold_flow_value:.3f},")
+                dpg.set_value('X4_value',f"{cold_flow_value:.1f}")
 
-            hot_flow_value=get_hot_flow_value()
-            dummy_file.write(f'{hot_flow_value},')
-            dpg.set_value('X5_value',hot_flow_value)
+            if port_broken_bools[5]==0:
+                hot_flow_value=get_hot_flow_value()
+                dummy_file.write(f'{hot_flow_value},')
+                dpg.set_value('X5_value',hot_flow_value)
 
-            temp_rh_near_value=get_temp_rh_near_value()
-            dummy_file.write(f'{temp_rh_near_value},')
-            dpg.set_value('X6_value',temp_rh_near_value)
+            if port_broken_bools[6]==0:
+                temp_rh_near_value=get_temp_rh_near_value()
+                dummy_file.write(f'{temp_rh_near_value},')
+                dpg.set_value('X6_value',temp_rh_near_value)
 
-            temp_rh_far_value=get_temp_rh_far_value()
-            dummy_file.write(f'{temp_rh_far_value},\n')
-            dpg.set_value('X7_value',temp_rh_far_value)
+            if port_broken_bools[7]==0:
+                temp_rh_far_value=get_temp_rh_far_value()
+                dummy_file.write(f'{temp_rh_far_value},\n')
+                dpg.set_value('X7_value',temp_rh_far_value)
 
         if (time.time()-prev_ts>1):
             print("WARNING: POLLING RATE IS TOO FAST")
@@ -142,6 +203,7 @@ def worker():
     for port in range(8):
         dpg.set_value(f'X{port}_value','*****')
         dpg.set_value(f'X{port}_unit','*****')
+        dpg.bind_item_theme(f'X{port}_port', washer_theme)
     dpg.set_value('status_text','Ready')
 
 # add a font registry, needed for having next of different sizes
@@ -152,6 +214,14 @@ with dpg.font_registry():
     normal_font = dpg.add_font(font_style_choice, normal_font_height)
     button_font=dpg.add_font(font_style_choice, button_font_height)
 
+with dpg.theme() as red_theme:
+    with dpg.theme_component(dpg.mvText):
+        dpg.add_theme_color(dpg.mvThemeCol_Text,(255,80,80,255))
+    with dpg.theme_component(dpg.mvAll):
+        dpg.add_theme_style(dpg.mvStyleVar_WindowPadding, viewport_width*0.025, viewport_height*0.02)
+        dpg.add_theme_style(dpg.mvStyleVar_ItemSpacing, 0, 0)
+        dpg.add_theme_style(dpg.mvStyleVar_FramePadding, 0, 0)
+    
 # add themes to adjust padding
 with dpg.theme() as washer_theme:
     with dpg.theme_component(dpg.mvAll):

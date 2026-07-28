@@ -105,20 +105,20 @@ def _get_byte_array(url: str) -> list[int]:
 def get_cold_temp_value():
     return "*****"
 def get_cold_temp_unit():
-    return "°F"
+    return "cold_temp_broken"
 def get_hot_temp_value():
     return "*****"
 def get_hot_temp_unit():
-    return "°F"
+    return "cold_temp_broken"
 
 def get_cold_pres_value():
     return "*****"
 def get_cold_pres_unit():
-    return "psig"
+    return "cold_temp_broken"
 def get_hot_pres_value():
     return "*****"
 def get_hot_pres_unit():
-    return "psig"
+    return "cold_temp_broken"
 
 
 def get_cold_flow_value() -> float:
@@ -128,7 +128,10 @@ def get_cold_flow_value() -> float:
         "/processdata/getdata/value?format=byteArray"
     )
 
+
     process_data = _get_byte_array(url)
+    
+        
 
     if len(process_data) != 15:
         raise ValueError(f"Expected 15 process-data bytes, got {len(process_data)}.")
@@ -144,8 +147,11 @@ def get_cold_flow_unit() -> str:
         "/parameters/550/value/?format=byteArray"
     )
 
-    unit_bytes = _get_byte_array(url)
-    unit_number = int.from_bytes(unit_bytes, byteorder="big")
+    try:
+        unit_bytes = _get_byte_array(url)
+        unit_number = int.from_bytes(unit_bytes, byteorder="big")
+    except:
+        return "cold_flow_broken"
 
     units = {
         0: "L/s",
@@ -160,15 +166,15 @@ def get_cold_flow_unit() -> str:
 def get_hot_flow_value():
     return '*****'
 def get_hot_flow_unit():
-    return 'gal/min'
+    return 'hot_flow_broken'
 def get_temp_rh_near_value():
     return '*****'
 def get_temp_rh_near_unit():
-    return """°F/%RH"""
+    return """temp_rh_near_broken"""
 def get_temp_rh_far_value():
     return '*****'
 def get_temp_rh_far_unit():
-    return """°F/%RH"""
+    return """temp_rh_far_broken"""
 
 def _set_flow_unit_gpm(sensor_alias: str) -> bool:
     """Set one Picomag flow sensor to gal/min."""
