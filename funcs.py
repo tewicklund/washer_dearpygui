@@ -105,20 +105,20 @@ def _get_byte_array(url: str) -> list[int]:
 def get_cold_temp_value():
     return "*****"
 def get_cold_temp_unit():
-    return "cold_temp_broken"
+    return "offline"
 def get_hot_temp_value():
     return "*****"
 def get_hot_temp_unit():
-    return "hot_temp_broken"
+    return "offline"
 
 def get_cold_pres_value():
     return "*****"
 def get_cold_pres_unit():
-    return "cold_pres_broken"
+    return "offline"
 def get_hot_pres_value():
     return "*****"
 def get_hot_pres_unit():
-    return "hot_pres_broken"
+    return "offline"
 
 
 def get_cold_flow_value() -> float:
@@ -151,7 +151,7 @@ def get_cold_flow_unit() -> str:
         unit_bytes = _get_byte_array(url)
         unit_number = int.from_bytes(unit_bytes, byteorder="big")
     except:
-        return "cold_flow_broken"
+        return "offline"
 
     units = {
         0: "L/s",
@@ -166,15 +166,15 @@ def get_cold_flow_unit() -> str:
 def get_hot_flow_value():
     return '*****'
 def get_hot_flow_unit():
-    return 'hot_flow_broken'
+    return 'offline'
 def get_temp_rh_near_value():
     return '*****'
 def get_temp_rh_near_unit():
-    return """temp_rh_near_broken"""
+    return """offline"""
 def get_temp_rh_far_value():
     return '*****'
 def get_temp_rh_far_unit():
-    return """temp_rh_far_broken"""
+    return """offline"""
 
 def _set_flow_unit_gpm(sensor_alias: str) -> bool:
     """Set one Picomag flow sensor to gal/min."""
