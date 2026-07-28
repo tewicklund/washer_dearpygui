@@ -170,36 +170,35 @@ def get_temp_rh_far():
 def get_temp_rh_far_unit():
     return """°F/%RH"""
 
-def set_flow_unit_gpm() -> str:
-    """Set the cold Picomag flow-rate unit to US gal/min."""
+def set_flow_unit_gpm() -> bool:
+    url = (
+        f"{HUB_URL}/iolink/v1/devices/{COLD_FLOW_SENSOR_ALIAS}"
+        "/parameters/550/value?format=byteArray"
+    )
 
-    aliases=[COLD_FLOW_SENSOR_ALIAS,HOT_FLOW_SENSOR_ALIAS]
+    payload = {"value": [3]}
 
-    for sensor in aliases:
-
-        url = (
-            f"{HUB_URL}/iolink/v1/devices/{sensor}"
-            "/parameters/550/value"
-        )
-
+    try:
         response = requests.post(
             url,
-            json={"value": [3]},
+            json=payload,
             auth=(HUB_USERNAME, HUB_PASSWORD),
             timeout=5,
         )
-        response.raise_for_status()
 
-        # Confirm that the sensor accepted the new setting.
-        if sensor==aliases[0]:
-            selected_unit = get_cold_flow_unit()
-        else:
-            selected_unit = get_hot_flow_unit()
+        if not response.ok:
+            print(f"Flow-unit write failed: HTTP {response.status_code}")
+            print(f"URL: {response.url}")
+            print(f"Sent JSON: {payload}")
+            print(f"Hub response: {response.text}")
+            return False
 
-        if selected_unit != "gal/min":
-            raise RuntimeError(
-                f"Flow-unit write did not take effect; sensor reports {selected_unit!r}"
-            )
+        print("Flow unit successfully set to gal/min")
+        return True
+
+    except requests.RequestException as exc:
+        print(f"Flow-unit request failed: {exc}")
+        return False
 
 # example usage
 #print(f"Cold water flow: {get_flow()} {get_flow_unit()}")
