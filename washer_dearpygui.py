@@ -8,11 +8,11 @@ stop_event=threading.Event()
 
 dpg.create_context()
 
+# port info lists
 table_names=["Cold Temp.","Hot Temp.","Cold Pres.","Hot Pres.","Cold Flow","Hot Flow","Near Ambi.","Far Ambi"]
 get_unit_functions=[get_cold_temp_unit,get_hot_temp_unit,get_cold_pres_unit,get_hot_pres_unit,get_cold_flow_unit,get_hot_flow_unit,get_temp_rh_near_unit,get_temp_rh_far_unit]
 get_value_functions=[get_cold_temp_value,get_hot_temp_value,get_cold_pres_value,get_hot_pres_value,get_cold_flow_value,get_hot_flow_value,get_temp_rh_near_value,get_temp_rh_far_value]
 column_headers='sample_num,epoch_timestamp_ms,human_timestamp,'
-table_port_numbers=[3,7,2,6,1,5,0,4]
 port_broken_bools=[0,0,0,0,0,0,0,0]
 
 test_duration_samples=10
@@ -23,11 +23,11 @@ thin_col_width=0.08*viewport_width
 thick_col_width=0.14*viewport_width
 middle_col_width=0.04*viewport_width
 
-
 title_height=viewport_height*0.1
 table_height=viewport_height*0.7
 button_height=viewport_height*0.2
 
+# adjust font sizes and styles
 title_font_height=int(viewport_height*0.05)
 header_font_height=int(viewport_height*0.04)
 normal_font_height=int(viewport_height*0.030)
@@ -60,6 +60,7 @@ def stop_test():
         dpg.bind_item_theme(f'X{port_num}_port',washer_theme)
         dpg.bind_item_theme(f'X{port_num}_name',washer_theme)
 
+# function containing main test loop that can exit when STOP is pressed
 def worker():
     dpg.set_value('status_text','Starting')
     test_duration_samples=int(dpg.get_value('test_duration_seconds'))
@@ -112,6 +113,7 @@ def worker():
         while (time.time()-prev_ts<1):
             pass
 
+    # wrap up after test loop is done, reset UI
     dpg.set_value('status_text','Finishing')
     for port_num in range(8):
             dpg.set_value(f'X{port_num}_value','*****')
@@ -121,6 +123,11 @@ def worker():
             dpg.bind_item_theme(f'X{port_num}_port',washer_theme)
             dpg.bind_item_theme(f'X{port_num}_name',washer_theme)
     dpg.set_value('status_text','Ready')
+
+
+
+
+
 
 # add a font registry, needed for having next of different sizes
 with dpg.font_registry():
