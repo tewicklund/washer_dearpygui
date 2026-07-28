@@ -8,7 +8,7 @@ stop_event=threading.Event()
 
 dpg.create_context()
 
-table_names=["Hot Temp.","Cold Temp.","Hot Pres.","Cold Pres.","Hot Flow","Cold Flow","Near Ambi.","Far Ambi"]
+table_names=["Cold Temp.","Hot Temp.","Cold Pres.","Hot Pres.","Cold Flow","Hot Flow","Near Ambi.","Far Ambi"]
 column_headers='sample_num,epoch_timestamp_ms,human_timestamp,'
 table_port_numbers=[3,7,2,6,1,5,0,4]
 
@@ -48,6 +48,7 @@ def stop_test():
     stop_event.set()
 
 def worker():
+    set_flow_unit_gpm()
     x=0
     with open('dummy_log.csv','w') as dummy_file:
         dummy_file.write('sample_num,epoch_timestamp_ms,human_timestamp,')

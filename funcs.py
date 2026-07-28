@@ -7,8 +7,12 @@ import json
 import urllib.request
 from datetime import datetime
 import time
+import requests
+
 
 HUB_URL = "http://192.168.99.162"
+HUB_USERNAME="washer_test_user"
+HUB_PASSWORD="washer_test_password"
 COLD_TEMP_ALIAS = "master1port0"
 HOT_TEMP_ALIAS = "master1port1"
 COLD_PRESSURE_ALIAS = "master1port2"
@@ -165,7 +169,36 @@ def get_temp_rh_far():
 def get_temp_rh_far_unit():
     return """°F/%RH"""
 
+def set_flow_unit_gpm() -> str:
+    """Set the cold Picomag flow-rate unit to US gal/min."""
 
+    aliases=[COLD_FLOW_SENSOR_ALIAS,HOT_FLOW_SENSOR_ALIAS]
+
+    for sensor in aliases:
+
+        url = (
+            f"{HUB_URL}/iolink/v1/devices/{sensor}"
+            "/parameters/550/value"
+        )
+
+        response = requests.post(
+            url,
+            json={"value": [3]},
+            auth=(HUB_USERNAME, HUB_PASSWORD),
+            timeout=5,
+        )
+        response.raise_for_status()
+
+        # Confirm that the sensor accepted the new setting.
+        if sensor==aliases[0]:
+            selected_unit = get_cold_flow_unit()
+        else:
+            selected_unit = get_hot_flow_unit()
+
+        if selected_unit != "gal/min":
+            raise RuntimeError(
+                f"Flow-unit write did not take effect; sensor reports {selected_unit!r}"
+            )
 
 # example usage
 #print(f"Cold water flow: {get_flow()} {get_flow_unit()}")
