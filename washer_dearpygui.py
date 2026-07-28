@@ -12,6 +12,8 @@ table_names=["Cold Temp.","Hot Temp.","Cold Pres.","Hot Pres.","Cold Flow","Hot 
 column_headers='sample_num,epoch_timestamp_ms,human_timestamp,'
 table_port_numbers=[3,7,2,6,1,5,0,4]
 
+test_duration_samples=10
+
 # adjust vertical sizing for all GUI elements
 viewport_width,viewport_height=compute_window_size(960,720)
 thin_col_width=0.08*viewport_width
@@ -30,7 +32,7 @@ button_font_height=int(viewport_height*0.12)
 font_styles=["FiraMono-Regular.ttf","DejaVuSans.ttf"]
 font_style_choice=font_styles[1]
 
-table_row_height=0.2*table_height
+table_row_height=0.15*table_height
 table_text_pad_v=(table_row_height-normal_font_height)/2
 
 
@@ -46,8 +48,11 @@ def start_test():
 # stop test callback function
 def stop_test():
     stop_event.set()
+    dpg.set_value('status_text','Stopped')
 
 def worker():
+    dpg.set_value('status_text','Running')
+    test_duration_samples=int(dpg.get_value('test_duration_seconds'))
     if not set_flow_units_gpm():
         print("One or more flow sensors could not be configured.")
     x=0
@@ -87,10 +92,11 @@ def worker():
         dpg.set_value("X7_unit",temp_rh_far_unit)
 
 
-    while not stop_event.is_set():
+    while not stop_event.is_set() and x<=test_duration_samples:
         x+=1
+        dpg.set_value('status_text',f'Smpl {x}')
+        print(f'Collecting data point {x}')
         timestamp_data=make_timestamp(x)
-        print(timestamp_data)
         prev_ts=time.time()
         with open('dummy_log.csv','a') as dummy_file:
             dummy_file.write(f" {timestamp_data['sample_num']} , {timestamp_data['epoch_timestamp_ms']} , {timestamp_data['human_timestamp']},")
@@ -133,6 +139,7 @@ def worker():
             pass
 
     print("stopping")
+    dpg.set_value('status_text','Ready')
 
 # add a font registry, needed for having next of different sizes
 with dpg.font_registry():
@@ -227,6 +234,35 @@ with dpg.window( pos=(0,title_height),width=viewport_width,height=table_height,n
                 with dpg.group():
                     dpg.add_spacer(height=table_text_pad_v)
                     dpg.add_text("*****",tag=f'X{str(entry_number)}_unit')
+
+        with dpg.table_row(height=table_row_height/2):
+            pass
+        with dpg.table_row(height=table_row_height,):
+            with dpg.group():
+                dpg.add_spacer(height=table_text_pad_v)
+                dpg.add_text('Status:')
+            with dpg.group():
+                dpg.add_spacer(height=table_text_pad_v)
+                dpg.add_text('Ready',tag='status_text')
+            with dpg.group():
+                dpg.add_spacer(height=table_text_pad_v)
+                dpg.add_text('     ')
+            with dpg.group():
+                dpg.add_spacer(height=table_text_pad_v)
+                dpg.add_text('     ')
+            with dpg.group():
+                dpg.add_spacer(height=table_text_pad_v)
+                dpg.add_text     
+            with dpg.group():
+                dpg.add_spacer(height=table_text_pad_v)
+                dpg.add_text('Time:')
+            with dpg.group():
+                dpg.add_spacer(height=table_text_pad_v)
+                dpg.add_input_text(default_value='10',tag='test_duration_seconds')
+            with dpg.group():
+                dpg.add_spacer(height=table_text_pad_v)
+                dpg.add_text('s')
+                
             
 
 dpg.bind_item_theme("table_window",washer_theme)
