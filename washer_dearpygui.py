@@ -63,12 +63,13 @@ def stop_test():
 def worker():
     dpg.set_value('status_text','Starting')
     test_duration_samples=int(dpg.get_value('test_duration_seconds'))
+
+    # try to set units for flow sensor to gallons per minute
     if not set_flow_units_gpm():
         print("One or more flow sensors could not be configured.")
-    
-    with open('dummy_log.csv','w') as dummy_file:
 
-        #set up column headers
+    # set up column headers in the log file and UI
+    with open('dummy_log.csv','w') as dummy_file:
         dummy_file.write('sample_num,epoch_timestamp_ms,human_timestamp,')
         for port_num in range(8):
             requested_unit=get_unit_functions[port_num]()
@@ -81,81 +82,15 @@ def worker():
                 dpg.bind_item_theme(f'X{port_num}_name',red_theme)
             dummy_file.write(f'{table_names[port_num]} ({requested_unit}),')
             dpg.set_value(f"X{port_num}_unit",requested_unit)
+        dummy_file.write('\n')
 
-        # cold_temp_unit=get_cold_temp_unit()
-        # if cold_temp_unit=='cold_temp_broken':
-        #     cold_temp_unit='???'
-        #     port_broken_bools[0]=1
-        #     dpg.bind_item_theme('X0_port', red_theme)
-        # dummy_file.write(f'cold_temp ({cold_temp_unit}),')
-        # dpg.set_value("X0_unit",cold_temp_unit)
-
-        # hot_temp_unit=get_hot_temp_unit()
-        # if hot_temp_unit=='hot_temp_broken':
-        #     hot_temp_unit='???'
-        #     port_broken_bools[1]=1
-        #     dpg.bind_item_theme('X0_port', red_theme)
-        # dummy_file.write(f'hot_temp ({hot_temp_unit}),')
-        # dpg.set_value("X1_unit",hot_temp_unit)
-
-        # cold_pres_unit=get_cold_pres_unit()
-        # if cold_pres_unit=='cold_pres_broken':
-        #     cold_pres_unit='???'
-        #     port_broken_bools[2]=1
-        #     dpg.bind_item_theme('X0_port', red_theme)
-        # dummy_file.write(f'cold_pres ({cold_pres_unit}),')
-        # dpg.set_value("X2_unit",cold_pres_unit)
-
-        # hot_pres_unit=get_hot_pres_unit()
-        # if hot_pres_unit=='hot_pres_broken':
-        #     hot_pres_unit='???'
-        #     port_broken_bools[3]=1
-        #     dpg.bind_item_theme('X0_port', red_theme)
-        # dummy_file.write(f'hot_pres ({hot_pres_unit}),')
-        # dpg.set_value("X3_unit",hot_pres_unit)
-
-        # cold_flow_unit=get_cold_flow_unit()
-        # if cold_flow_unit=='cold_flow_broken':
-        #     port_broken_bools[4]=1
-        #     dummy_file.write('COLD FLOW BROKEN,')
-        #     dpg.set_value("X4_unit",'???')
-        #     dpg.bind_item_theme('X4_port', red_theme)
-        # else:
-        #     dummy_file.write(f'cold_flow ({cold_flow_unit}),')
-        #     dpg.set_value("X4_unit",cold_flow_unit)
-
-        # hot_flow_unit=get_hot_flow_unit()
-        # if hot_flow_unit=='hot_flow_broken':
-        #     port_broken_bools[5]=1
-        #     dummy_file.write('HOT FLOW BROKEN,')
-        #     dpg.set_value("X5_unit",'???')
-        #     dpg.bind_item_theme('X5_port', red_theme)
-        # else:
-        #     dummy_file.write(f'hot_flow ({hot_flow_unit}),')
-        #     dpg.set_value("X5_unit",hot_flow_unit)
-
-        # temp_rh_near_unit=get_temp_rh_near_unit()
-        # if temp_rh_near_unit=='temp_rh_near_broken':
-        #     port_broken_bools[6]=1
-        #     dummy_file.write('AMBIENT P6 BROKEN,')
-        #     dpg.set_value("X6_unit",'???')
-        #     dpg.bind_item_theme('X6_port', red_theme)
-        # else:
-        #     dummy_file.write(f'near_ambi ({temp_rh_near_unit}),')
-        #     dpg.set_value("X6_unit",temp_rh_near_unit)
-
-        # temp_rh_far_unit=get_temp_rh_far_unit()
-        # if temp_rh_far_unit=='temp_rh_far_broken':
-        #     port_broken_bools[7]=1
-        #     dummy_file.write('AMBIENT P7 BROKEN,\n')
-        #     dpg.set_value("X7_unit",'???')
-        #     dpg.bind_item_theme('X7_port', red_theme)
-        # else:
-        #     dummy_file.write(f'far_ambi ({temp_rh_far_unit})\n')
-        #     dpg.set_value("X7_unit",temp_rh_far_unit)
-
+        
+    # main test loop
     x=0
-    while not stop_event.is_set() and x<test_duration_samples:
+    indefinite_logging=False
+    if test_duration_samples<=0:
+        indefinite_logging=True
+    while not stop_event.is_set() and (x<test_duration_samples or indefinite_logging):
         x+=1
         dpg.set_value('status_text',f'Sample {x}')
         print(f'Collecting data point {x}')
@@ -170,45 +105,7 @@ def worker():
                 dpg.set_value(f"X{port_num}_value",requested_value)
             dummy_file.write('\n')
             
-            # if port_broken_bools[0]==0:
-            #     cold_temp_value=get_cold_temp_value()
-            #     dummy_file.write(f'{cold_temp_value},')
-            #     dpg.set_value("X0_value",cold_temp_value)
-
-            # if port_broken_bools[1]==0:
-            #     hot_temp_value=get_hot_temp_value()
-            #     dummy_file.write(f'{hot_temp_value},')
-            #     dpg.set_value("X1_value",hot_temp_value)
-
-            # if port_broken_bools[2]==0:
-            #     cold_pres_value=get_cold_pres_value()
-            #     dummy_file.write(f'{cold_pres_value},')
-            #     dpg.set_value('X2_value',cold_pres_value)
-
-            # if port_broken_bools[3]==0:
-            #     hot_pres_value=get_hot_pres_value()
-            #     dummy_file.write(f'{hot_pres_value},')
-            #     dpg.set_value('X3_value',hot_pres_value)
-
-            # if port_broken_bools[4]==0:
-            #     cold_flow_value=get_cold_flow_value()
-            #     dummy_file.write(f"{cold_flow_value:.3f},")
-            #     dpg.set_value('X4_value',f"{cold_flow_value:.1f}")
-
-            # if port_broken_bools[5]==0:
-            #     hot_flow_value=get_hot_flow_value()
-            #     dummy_file.write(f'{hot_flow_value},')
-            #     dpg.set_value('X5_value',hot_flow_value)
-
-            # if port_broken_bools[6]==0:
-            #     temp_rh_near_value=get_temp_rh_near_value()
-            #     dummy_file.write(f'{temp_rh_near_value},')
-            #     dpg.set_value('X6_value',temp_rh_near_value)
-
-            # if port_broken_bools[7]==0:
-            #     temp_rh_far_value=get_temp_rh_far_value()
-            #     dummy_file.write(f'{temp_rh_far_value},\n')
-            #     dpg.set_value('X7_value',temp_rh_far_value)
+            
 
         if (time.time()-prev_ts>1):
             print("WARNING: POLLING RATE IS TOO FAST")
