@@ -48,7 +48,8 @@ def stop_test():
     stop_event.set()
 
 def worker():
-    set_flow_unit_gpm()
+    if not set_flow_units_gpm():
+        print("One or more flow sensors could not be configured.")
     x=0
     with open('dummy_log.csv','w') as dummy_file:
         dummy_file.write('sample_num,epoch_timestamp_ms,human_timestamp,')

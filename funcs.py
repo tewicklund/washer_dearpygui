@@ -170,9 +170,11 @@ def get_temp_rh_far():
 def get_temp_rh_far_unit():
     return """°F/%RH"""
 
-def set_flow_unit_gpm() -> bool:
+def _set_flow_unit_gpm(sensor_alias: str) -> bool:
+    """Set one Picomag flow sensor to gal/min."""
+
     url = (
-        f"{HUB_URL}/iolink/v1/devices/{COLD_FLOW_SENSOR_ALIAS}"
+        f"{HUB_URL}/iolink/v1/devices/{sensor_alias}"
         "/parameters/550/value?format=byteArray"
     )
 
@@ -187,18 +189,31 @@ def set_flow_unit_gpm() -> bool:
         )
 
         if not response.ok:
-            print(f"Flow-unit write failed: HTTP {response.status_code}")
-            print(f"URL: {response.url}")
-            print(f"Sent JSON: {payload}")
+            print(
+                f"Failed to set {sensor_alias} to gal/min: "
+                f"HTTP {response.status_code}"
+            )
             print(f"Hub response: {response.text}")
             return False
 
-        print("Flow unit successfully set to gal/min")
+        print(f"{sensor_alias} set to gal/min")
         return True
 
     except requests.RequestException as exc:
-        print(f"Flow-unit request failed: {exc}")
+        print(f"Request failed for {sensor_alias}: {exc}")
         return False
+
+def set_flow_units_gpm() -> bool:
+    """
+    Set both the cold and hot Picomag flow sensors to gal/min.
+
+    Returns True only if both writes succeed.
+    """
+
+    cold_success = _set_flow_unit_gpm(COLD_FLOW_SENSOR_ALIAS)
+    hot_success = _set_flow_unit_gpm(HOT_FLOW_SENSOR_ALIAS)
+
+    return cold_success and hot_success
 
 # example usage
 #print(f"Cold water flow: {get_flow()} {get_flow_unit()}")
