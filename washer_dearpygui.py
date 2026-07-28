@@ -138,7 +138,10 @@ def worker():
         while (time.time()-prev_ts<1):
             pass
 
-    print("stopping")
+    dpg.set_value('status_text','Finishing')
+    for port in range(8):
+        dpg.set_value(f'X{port}_value','*****')
+        dpg.set_value(f'X{port}_unit','*****')
     dpg.set_value('status_text','Ready')
 
 # add a font registry, needed for having next of different sizes
