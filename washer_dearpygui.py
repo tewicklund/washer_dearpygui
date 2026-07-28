@@ -8,19 +8,15 @@ stop_event=threading.Event()
 
 dpg.create_context()
 
-
 table_names=["Hot Temp.","Cold Temp.","Hot Pres.","Cold Pres.","Hot Flow","Cold Flow","Near Ambi.","Far Ambi"]
 column_headers='sample_num,epoch_timestamp_ms,human_timestamp,'
 table_port_numbers=[3,7,2,6,1,5,0,4]
 
-
-
-
 # adjust vertical sizing for all GUI elements
 viewport_width,viewport_height=compute_window_size(960,720)
-thin_col_width=0.06*viewport_width
+thin_col_width=0.07*viewport_width
 thick_col_width=0.13*viewport_width
-middle_col_width=0.08*viewport_width
+middle_col_width=0.04*viewport_width
 
 
 title_height=viewport_height*0.1
@@ -29,7 +25,7 @@ button_height=viewport_height*0.2
 
 title_font_height=int(viewport_height*0.05)
 header_font_height=int(viewport_height*0.04)
-normal_font_height=int(viewport_height*0.035)
+normal_font_height=int(viewport_height*0.030)
 button_font_height=int(viewport_height*0.12)
 font_styles=["FiraMono-Regular.ttf","DejaVuSans.ttf"]
 font_style_choice=font_styles[1]
@@ -205,10 +201,10 @@ with dpg.window( pos=(0,title_height),width=viewport_width,height=table_height,n
                     dpg.add_text(table_names[entry_number],tag=f'X{str(entry_number)}_name')
                 with dpg.group():
                     dpg.add_spacer(height=table_text_pad_v)
-                    dpg.add_text("UNKNOWN",tag=f'X{str(entry_number)}_value')
+                    dpg.add_text("*****",tag=f'X{str(entry_number)}_value')
                 with dpg.group():
                     dpg.add_spacer(height=table_text_pad_v)
-                    dpg.add_text("UNKNOWN",tag=f'X{str(entry_number)}_unit')
+                    dpg.add_text("*****",tag=f'X{str(entry_number)}_unit')
 
                 dpg.add_text("   ")
 
@@ -221,10 +217,10 @@ with dpg.window( pos=(0,title_height),width=viewport_width,height=table_height,n
                     dpg.add_text(table_names[entry_number],tag=f'X{str(entry_number)}_name')
                 with dpg.group():
                     dpg.add_spacer(height=table_text_pad_v)
-                    dpg.add_text("UNKNOWN",tag=f'X{str(entry_number)}_value')
+                    dpg.add_text("*****",tag=f'X{str(entry_number)}_value')
                 with dpg.group():
                     dpg.add_spacer(height=table_text_pad_v)
-                    dpg.add_text("UNKNOWN",tag=f'X{str(entry_number)}_unit')
+                    dpg.add_text("*****",tag=f'X{str(entry_number)}_unit')
             
 
          

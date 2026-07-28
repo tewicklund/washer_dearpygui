@@ -153,15 +153,15 @@ def get_cold_flow_unit() -> str:
 
     return units.get(unit_number, f"unknown unit ({unit_number})")
 def get_hot_flow():
-    return 'UNKNOWN'
+    return '*****'
 def get_hot_flow_unit():
     return 'gal/min'
 def get_temp_rh_near():
-    return 'UNKNOWN'
+    return '*****'
 def get_temp_rh_near_unit():
     return """°F/%RH"""
 def get_temp_rh_far():
-    return 'UNKNOWN'
+    return '*****'
 def get_temp_rh_far_unit():
     return """°F/%RH"""
 
