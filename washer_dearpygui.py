@@ -51,11 +51,11 @@ def stop_test():
     dpg.set_value('status_text','Stopped')
 
 def worker():
-    dpg.set_value('status_text','Running')
+    dpg.set_value('status_text','Starting')
     test_duration_samples=int(dpg.get_value('test_duration_seconds'))
     if not set_flow_units_gpm():
         print("One or more flow sensors could not be configured.")
-    x=0
+    
     with open('dummy_log.csv','w') as dummy_file:
         dummy_file.write('sample_num,epoch_timestamp_ms,human_timestamp,')
 
@@ -91,10 +91,10 @@ def worker():
         dummy_file.write(f'far_ambi ({temp_rh_far_unit}),\n')
         dpg.set_value("X7_unit",temp_rh_far_unit)
 
-
-    while not stop_event.is_set() and x<=test_duration_samples:
+    x=0
+    while not stop_event.is_set() and x<test_duration_samples:
         x+=1
-        dpg.set_value('status_text',f'Smpl {x}')
+        dpg.set_value('status_text',f'Sample {x}')
         print(f'Collecting data point {x}')
         timestamp_data=make_timestamp(x)
         prev_ts=time.time()

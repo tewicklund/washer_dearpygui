@@ -103,20 +103,20 @@ def _get_byte_array(url: str) -> list[int]:
     return value
 
 def get_cold_temp_value():
-    return "UNKNOWN"
+    return "*****"
 def get_cold_temp_unit():
     return "°F"
 def get_hot_temp_value():
-    return "UNKNOWN"
+    return "*****"
 def get_hot_temp_unit():
     return "°F"
 
 def get_cold_pres_value():
-    return "UNKNOWN"
+    return "*****"
 def get_cold_pres_unit():
     return "psig"
 def get_hot_pres_value():
-    return "UNKNOWN"
+    return "*****"
 def get_hot_pres_unit():
     return "psig"
 
