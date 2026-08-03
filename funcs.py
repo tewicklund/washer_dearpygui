@@ -13,14 +13,14 @@ import requests
 HUB_URL = "http://192.168.99.162"
 HUB_USERNAME="washer_test_user"
 HUB_PASSWORD="washer_test_password"
-COLD_TEMP_ALIAS = "master1port0"
-HOT_TEMP_ALIAS = "master1port1"
-COLD_PRESSURE_ALIAS = "master1port2"
-HOT_PRESSURE_ALIAS = "master1port3"
-COLD_FLOW_SENSOR_ALIAS = "master1port4"
-HOT_FLOW_SENSOR_ALIAS = "master1port5"
-NEAR_AMBIENT_ALIAS = "master1port6"
+COLD_TEMP_ALIAS = "master1port1"
+HOT_TEMP_ALIAS = "master1port2"
+COLD_PRESSURE_ALIAS = "master1port3"
+HOT_PRESSURE_ALIAS = "master1port4"
+COLD_FLOW_SENSOR_ALIAS = "master1port5"
+HOT_FLOW_SENSOR_ALIAS = "master1port6"
 NEAR_AMBIENT_ALIAS = "master1port7"
+NEAR_AMBIENT_ALIAS = "master1port8"
 
 
 # function for sizing UI window (viewport) based on primary monitor width and height
@@ -178,14 +178,17 @@ def get_temp_rh_far_unit():
     return """offline"""
 
 def _set_flow_unit_gpm(sensor_alias: str) -> bool:
-    """Set one Picomag flow sensor to gal/min."""
+    """Set one Picomag flow sensor to US gal/min."""
 
     url = (
         f"{HUB_URL}/iolink/v1/devices/{sensor_alias}"
-        "/parameters/550/value?format=byteArray"
+        "/parameters/550/value"
     )
 
-    payload = {"value": [3]}
+    gpm_value = 3
+    payload = {
+        "value": list(gpm_value.to_bytes(2, byteorder="big"))
+    }
 
     try:
         response = requests.post(
