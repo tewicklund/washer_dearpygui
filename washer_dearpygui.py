@@ -70,7 +70,8 @@ def worker():
         print("One or more flow sensors could not be configured.")
 
     # set up column headers in the log file and UI
-    with open('dummy_log.csv','w') as dummy_file:
+    log_file_name="io-link_log_"+str(int(time.time()*1000))+".csv"
+    with open(log_file_name,'w') as dummy_file:
         dummy_file.write('sample_num,epoch_timestamp_ms,human_timestamp,')
         for port_num in range(8):
             requested_unit=get_unit_functions[port_num]()
@@ -97,7 +98,7 @@ def worker():
         print(f'Collecting data point {x}')
         timestamp_data=make_timestamp(x)
         prev_ts=time.time()
-        with open('dummy_log.csv','a') as dummy_file:
+        with open(log_file_name,'a') as dummy_file:
             dummy_file.write(f" {timestamp_data['sample_num']} , {timestamp_data['epoch_timestamp_ms']} , {timestamp_data['human_timestamp']},")
 
             for port_num in range(8):
