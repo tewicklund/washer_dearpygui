@@ -181,14 +181,82 @@ def get_hot_temp_value():
 def get_hot_temp_unit():
     return _get_tm311_unit(HOT_TEMP_ALIAS)
 
+def _get_ptouch_pressure_psig(sensor_alias: str):
+    """
+    Return pressure from a 0-200 psig MP Sensor P.Touch transmitter.
+
+    The four-byte cyclic input begins with a signed, big-endian 16-bit
+    pressure value in kPa. Convert kPa to psi using the manufacturer
+    multiplier 0.14504.
+    """
+    url = (
+        f"{HUB_URL}/iolink/v1/devices/{sensor_alias}"
+        "/processdata/getdata/value?format=byteArray"
+    )
+
+    try:
+        process_data = _get_byte_array(url)
+
+        if len(process_data) != 4:
+            raise ValueError(
+                f"Expected 4 P.Touch process-data bytes, got {len(process_data)}."
+            )
+
+        raw_pressure_kpa = struct.unpack(">h", bytes(process_data[0:2]))[0]
+
+        # Special process-data values defined by the P.Touch IO-Link interface.
+        if raw_pressure_kpa == 32760:
+            raise RuntimeError("P.Touch pressure is above the process-data range.")
+        if raw_pressure_kpa == 32764:
+            raise RuntimeError("P.Touch reports no measurement data.")
+
+        pressure_psig = raw_pressure_kpa * 0.14504
+
+        return round(pressure_psig, 2)
+
+    except Exception as exc:
+        print(f"Failed to read P.Touch pressure from {sensor_alias}: {exc}")
+        return "UNKNOWN"
+
+
+def _get_ptouch_pressure_unit(sensor_alias: str) -> str:
+    """
+    Return PSIG after confirming that the P.Touch sensor is communicating.
+    """
+    url = (
+        f"{HUB_URL}/iolink/v1/devices/{sensor_alias}"
+        "/processdata/getdata/value?format=byteArray"
+    )
+
+    try:
+        process_data = _get_byte_array(url)
+
+        if len(process_data) != 4:
+            raise ValueError(
+                f"Expected 4 P.Touch process-data bytes, got {len(process_data)}."
+            )
+
+        return "PSIG"
+
+    except Exception as exc:
+        print(f"Failed to read P.Touch unit from {sensor_alias}: {exc}")
+        return "offline"
+
+
 def get_cold_pres_value():
-    return "*****"
+    return _get_ptouch_pressure_psig(COLD_PRESSURE_ALIAS)
+
+
 def get_cold_pres_unit():
-    return "offline"
+    return _get_ptouch_pressure_unit(COLD_PRESSURE_ALIAS)
+
+
 def get_hot_pres_value():
-    return "*****"
+    return _get_ptouch_pressure_psig(HOT_PRESSURE_ALIAS)
+
+
 def get_hot_pres_unit():
-    return "offline"
+    return _get_ptouch_pressure_unit(HOT_PRESSURE_ALIAS)
 
 
 def get_cold_flow_value() -> float:
