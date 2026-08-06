@@ -258,39 +258,43 @@ def get_hot_pres_value():
 def get_hot_pres_unit():
     return _get_ptouch_pressure_unit(HOT_PRESSURE_ALIAS)
 
+def _get_picomag_flow(sensor_alias: str):
+    """
+    Return the current Picomag volume flow rate.
 
-def get_cold_flow_value() -> float:
-    """Return the current flow rate."""
+    The Picomag cyclic process data contains 15 bytes. Bytes 8-11 are
+    the volume-flow value encoded as a big-endian IEEE-754 float.
+    """
     url = (
-        f"{HUB_URL}/iolink/v1/devices/{COLD_FLOW_SENSOR_ALIAS}"
+        f"{HUB_URL}/iolink/v1/devices/{sensor_alias}"
         "/processdata/getdata/value?format=byteArray"
     )
 
+    try:
+        process_data = _get_byte_array(url)
 
-    process_data = _get_byte_array(url)
-    
-        
+        if len(process_data) != 15:
+            raise ValueError(
+                f"Expected 15 Picomag process-data bytes, got {len(process_data)}."
+            )
 
-    if len(process_data) != 15:
-        raise ValueError(f"Expected 15 process-data bytes, got {len(process_data)}.")
+        flow_value = struct.unpack(">f", bytes(process_data[8:12]))[0]
 
-    cold_flow_value=struct.unpack(">f", bytes(process_data[8:12]))[0]
+        return round(flow_value, 3)
 
-    return round(cold_flow_value,3)
+    except Exception as exc:
+        print(f"Failed to read Picomag flow from {sensor_alias}: {exc}")
+        return "UNKNOWN"
 
 
-def get_cold_flow_unit() -> str:
-    """Return the flow unit selected in the Picomag configuration."""
+def _get_picomag_flow_unit(sensor_alias: str) -> str:
+    """
+    Return the volume-flow unit selected in the Picomag configuration.
+    """
     url = (
-        f"{HUB_URL}/iolink/v1/devices/{COLD_FLOW_SENSOR_ALIAS}"
+        f"{HUB_URL}/iolink/v1/devices/{sensor_alias}"
         "/parameters/550/value/?format=byteArray"
     )
-
-    try:
-        unit_bytes = _get_byte_array(url)
-        unit_number = int.from_bytes(unit_bytes, byteorder="big")
-    except:
-        return "offline"
 
     units = {
         0: "L/s",
@@ -301,11 +305,38 @@ def get_cold_flow_unit() -> str:
         5: "L/h",
     }
 
-    return units.get(unit_number, f"unknown unit ({unit_number})")
+    try:
+        unit_bytes = _get_byte_array(url)
+
+        if len(unit_bytes) != 2:
+            raise ValueError(
+                f"Expected 2 Picomag unit bytes, got {len(unit_bytes)}."
+            )
+
+        unit_number = int.from_bytes(unit_bytes, byteorder="big", signed=False)
+
+        return units.get(unit_number, f"unknown unit ({unit_number})")
+
+    except Exception as exc:
+        print(f"Failed to read Picomag flow unit from {sensor_alias}: {exc}")
+        return "offline"
+
+
+def get_cold_flow_value():
+    return _get_picomag_flow(COLD_FLOW_SENSOR_ALIAS)
+
+
+def get_cold_flow_unit():
+    return _get_picomag_flow_unit(COLD_FLOW_SENSOR_ALIAS)
+
+
 def get_hot_flow_value():
-    return '*****'
+    return _get_picomag_flow(HOT_FLOW_SENSOR_ALIAS)
+
+
 def get_hot_flow_unit():
-    return 'offline'
+    return _get_picomag_flow_unit(HOT_FLOW_SENSOR_ALIAS)
+
 def get_temp_rh_near_value():
     return '*****'
 def get_temp_rh_near_unit():
