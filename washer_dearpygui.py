@@ -98,6 +98,8 @@ def worker():
     if not set_temperature_units_fahrenheit():
         print("One or more water temperature sensors could not be configured.")
 
+    time.sleep(2)
+
     # set up column headers in the log file and UI
     log_file_name=test_name+"_"+str(int(time.time()*1000))+".csv"
     with open(log_file_name,'w') as dummy_file:
@@ -113,6 +115,7 @@ def worker():
                 dpg.bind_item_theme(f'X{port_num}_name',red_theme)
             dummy_file.write(f'{table_names[port_num]} ({requested_unit}),')
             dpg.set_value(f"X{port_num}_unit",requested_unit)
+            time.sleep(0.5)
         dummy_file.write('\n')
 
     # wait for all of the unit fields to update and for the log file to initialize
@@ -141,13 +144,15 @@ def worker():
 
             for port_num in range(8):
                 requested_value=get_value_functions[port_num]()
-                if port_num==6 or port_num==7:
+                if requested_value=='UNKNOWN':
+                    value_to_check='UNKNOWN'
+                elif port_num==6 or port_num==7:
                     value_to_check=float(requested_value.split(':')[0])
                 else:
                     value_to_check=float(requested_value)
                 dummy_file.write(f'{requested_value},')
                 dpg.set_value(f"X{port_num}_value",requested_value)
-                if value_to_check<acceptable_range_list[port_num][0] or value_to_check>acceptable_range_list[port_num][1]:
+                if value_to_check=='UNKNOWN' or value_to_check<acceptable_range_list[port_num][0] or value_to_check>acceptable_range_list[port_num][1]:
                     dpg.bind_item_theme(f'X{port_num}_value',red_theme)
                 else:
                     dpg.bind_item_theme(f'X{port_num}_value',washer_theme)
