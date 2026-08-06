@@ -19,9 +19,9 @@ test_duration_samples=10
 
 # adjust vertical sizing for all GUI elements
 viewport_width,viewport_height=compute_window_size(960,720)
-thin_col_width=0.08*viewport_width
-thick_col_width=0.14*viewport_width
-middle_col_width=0.04*viewport_width
+thin_col_width=0.10*viewport_width
+thick_col_width=0.15*viewport_width
+middle_col_width=0.002*viewport_width
 
 title_height=viewport_height*0.1
 table_height=viewport_height*0.7
@@ -35,7 +35,7 @@ button_font_height=int(viewport_height*0.12)
 font_styles=["FiraMono-Regular.ttf","DejaVuSans.ttf"]
 font_style_choice=font_styles[1]
 
-table_row_height=0.15*table_height
+table_row_height=0.12*table_height
 table_text_pad_v=(table_row_height-normal_font_height)/2
 
 # min/max for each parameter
@@ -312,7 +312,7 @@ with dpg.window( pos=(0,title_height),width=viewport_width,height=table_height,n
                 dpg.add_text('test_id:')
             with dpg.group():
                 dpg.add_spacer(height=table_text_pad_v)
-                dpg.add_input_text(default_value='iolink_log',tag='test_id')
+                dpg.add_input_text(default_value='iolink_log',tag='test_id',width=thick_col_width)
             
 
 dpg.bind_item_theme("table_window",washer_theme)
