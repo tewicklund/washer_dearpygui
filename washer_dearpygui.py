@@ -176,7 +176,7 @@ dpg.bind_item_theme("title_window",washer_theme)
 # middle window with the big feedback table
 with dpg.window( pos=(0,title_height),width=viewport_width,height=table_height,no_move=True,no_resize=True,no_title_bar=True,tag="table_window"):
     
-    with dpg.table(header_row=False,borders_innerH=True,borders_innerV=False):
+    with dpg.table(header_row=False,borders_innerH=True,borders_innerV=True):
         
         dpg.add_table_column(width_fixed=True, init_width_or_weight=thin_col_width)
         dpg.add_table_column(width_fixed=True, init_width_or_weight=thick_col_width)
