@@ -88,7 +88,7 @@ def stop_test():
 def worker():
     dpg.set_value('status_text','Starting')
     test_duration_samples=int(dpg.get_value('test_duration_seconds'))
-    test_name=dpg.get_value('test_duration_seconds')
+    test_name=dpg.get_value('test_id')
     if test_name=="":
         test_name='iolink_log'
 
