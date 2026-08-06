@@ -105,12 +105,50 @@ def _get_byte_array(url: str) -> list[int]:
 
     return value
 
+def _get_tm311_unit(sensor_alias: str) -> str:
+    """
+    Read and return the TM311's configured engineering unit.
+
+    TM311 parameter index 5121 (0x1401):
+      32 = °C
+      33 = °F
+      35 = K
+    """
+    url = (
+        f"{HUB_URL}/iolink/v1/devices/{sensor_alias}"
+        "/parameters/5121/value/?format=byteArray"
+    )
+
+    units = {
+        32: "°C",
+        33: "°F",
+        35: "K",
+    }
+
+    try:
+        unit_bytes = _get_byte_array(url)
+
+        if len(unit_bytes) != 1:
+            raise ValueError(
+                f"Expected 1 TM311 unit byte, got {len(unit_bytes)}."
+            )
+
+        unit_number = unit_bytes[0]
+
+        return units.get(unit_number, f"unknown unit ({unit_number})")
+
+    except Exception as exc:
+        print(f"Failed to read TM311 unit from {sensor_alias}: {exc}")
+        return "offline"
+
+
 def _get_tm311_temperature(sensor_alias: str):
     """
-    Return the TM311 process temperature in degrees Celsius.
+    Return the current TM311 temperature in its configured engineering unit.
 
-    The TM311 sends four process-data bytes. Bytes 0-1 are a signed,
-    big-endian 16-bit temperature value with one decimal place.
+    The first two process-data bytes are a signed, big-endian 16-bit
+    temperature value with a scale factor of 0.1. The numeric value already
+    follows the unit selected in TM311 parameter 5121.
     """
     url = (
         f"{HUB_URL}/iolink/v1/devices/{sensor_alias}"
@@ -127,7 +165,7 @@ def _get_tm311_temperature(sensor_alias: str):
 
         raw_temperature = struct.unpack(">h", bytes(process_data[0:2]))[0]
 
-        # TM311 special process values from the operating instructions.
+        # Special TM311 process-data values.
         if raw_temperature == 32764:
             raise RuntimeError("TM311 reports no measurement data.")
         if raw_temperature == -32760:
@@ -140,33 +178,6 @@ def _get_tm311_temperature(sensor_alias: str):
     except Exception as exc:
         print(f"Failed to read TM311 temperature from {sensor_alias}: {exc}")
         return "UNKNOWN"
-
-
-def _get_tm311_unit(sensor_alias: str) -> str:
-    """
-    Return the engineering unit used by the TM311 cyclic process data.
-
-    The TM311 process-data temperature is defined in degrees Celsius.
-    A process-data read is made first so a disconnected sensor reports offline.
-    """
-    url = (
-        f"{HUB_URL}/iolink/v1/devices/{sensor_alias}"
-        "/processdata/getdata/value?format=byteArray"
-    )
-
-    try:
-        process_data = _get_byte_array(url)
-
-        if len(process_data) != 4:
-            raise ValueError(
-                f"Expected 4 TM311 process-data bytes, got {len(process_data)}."
-            )
-
-        return "°C"
-
-    except Exception as exc:
-        print(f"Failed to read TM311 unit from {sensor_alias}: {exc}")
-        return "offline"
 
 
 def get_cold_temp_value():
