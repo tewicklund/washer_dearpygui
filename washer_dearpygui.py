@@ -88,6 +88,9 @@ def stop_test():
 def worker():
     dpg.set_value('status_text','Starting')
     test_duration_samples=int(dpg.get_value('test_duration_seconds'))
+    test_name=dpg.get_value('test_duration_seconds')
+    if test_name=="":
+        test_name='iolink_log'
 
     # try to set units for flow sensor to gallons per minute
     if not set_flow_units_gpm():
@@ -96,7 +99,7 @@ def worker():
         print("One or more water temperature sensors could not be configured.")
 
     # set up column headers in the log file and UI
-    log_file_name="io-link_log_"+str(int(time.time()*1000))+".csv"
+    log_file_name=test_name+"_"+str(int(time.time()*1000))+".csv"
     with open(log_file_name,'w') as dummy_file:
         dummy_file.write('sample_num,epoch_timestamp_ms,human_timestamp,')
         for port_num in range(8):
@@ -302,7 +305,14 @@ with dpg.window( pos=(0,title_height),width=viewport_width,height=table_height,n
             with dpg.group():
                 dpg.add_spacer(height=table_text_pad_v)
                 dpg.add_text('s')
-                
+
+        with dpg.table_row(height=table_row_height,):
+            with dpg.group():
+                dpg.add_spacer(height=table_text_pad_v)
+                dpg.add_text('test_id:')
+            with dpg.group():
+                dpg.add_spacer(height=table_text_pad_v)
+                dpg.add_input_text(default_value='iolink_log',tag='test_id')
             
 
 dpg.bind_item_theme("table_window",washer_theme)
