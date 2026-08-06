@@ -38,6 +38,29 @@ font_style_choice=font_styles[1]
 table_row_height=0.15*table_height
 table_text_pad_v=(table_row_height-normal_font_height)/2
 
+# min/max for each parameter
+min_cold_water_temp=55 #°F
+max_cold_water_temp=65 #°F
+min_hot_water_temp=130 #°F
+max_hot_water_temp=135 #°F
+min_cold_water_pressure=32.5 #psig
+max_cold_water_pressure=37.5 #psig
+min_hot_water_pressure=32.5 #psig
+max_hot_water_pressure=37.5 #psig
+min_ambient_temp=70 #°F
+max_ambient_temp=80 #°F
+min_ambient_rh=40 #%RH
+max_ambient_rh=60 #%RH
+
+acceptable_range_list=[[min_cold_water_temp,max_cold_water_temp],
+                       [min_hot_water_temp,max_hot_water_temp],
+                       [min_cold_water_pressure,max_cold_water_pressure],
+                       [min_hot_water_pressure,max_hot_water_pressure],
+                       [-10000,10000],
+                       [-10000,10000],
+                       [min_ambient_temp,max_ambient_temp],
+                       [min_ambient_temp,max_ambient_temp]]
+
 
 # START button callback function
 def start_test():
@@ -111,10 +134,19 @@ def worker():
         with open(log_file_name,'a') as dummy_file:
             dummy_file.write(f" {timestamp_data['sample_num']} , {timestamp_data['epoch_timestamp_ms']} , {timestamp_data['human_timestamp']},")
 
+
             for port_num in range(8):
                 requested_value=get_value_functions[port_num]()
+                if port_num==6 or port_num==7:
+                    value_to_check=requested_value.split(':')[0]
+                else:
+                    value_to_check=requested_value
                 dummy_file.write(f'{requested_value},')
                 dpg.set_value(f"X{port_num}_value",requested_value)
+                if value_to_check<acceptable_range_list[port_num][0] or value_to_check>acceptable_range_list[port_num][1]:
+                    dpg.bind_item_theme(f'X{port_num}_value',red_theme)
+                else:
+                    dpg.bind_item_theme(f'X{port_num}_value',washer_theme)
             dummy_file.write('\n')
             
             
