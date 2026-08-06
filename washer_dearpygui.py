@@ -68,6 +68,8 @@ def worker():
     # try to set units for flow sensor to gallons per minute
     if not set_flow_units_gpm():
         print("One or more flow sensors could not be configured.")
+    if not set_temperature_units_fahrenheit():
+        print("One or more water temperature sensors could not be configured.")
 
     # set up column headers in the log file and UI
     log_file_name="io-link_log_"+str(int(time.time()*1000))+".csv"
