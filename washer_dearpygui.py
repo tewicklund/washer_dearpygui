@@ -90,7 +90,7 @@ def worker():
 
     # wait for all of the unit fields to update and for the log file to initialize
     for x in range(5):
-        countdown_string=f'Test starting in {5-x} seconds'
+        countdown_string=f'start in {5-x}'
         print(countdown_string)
         dpg.set_value('status_text',countdown_string)
         time.sleep(1)
