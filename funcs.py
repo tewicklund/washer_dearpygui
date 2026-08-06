@@ -446,6 +446,61 @@ def get_temp_rh_far_value():
 def get_temp_rh_far_unit():
     return _get_ambient_temp_rh_unit(FAR_AMBIENT_ALIAS)
 
+def _set_temperature_unit_fahrenheit(sensor_alias: str) -> bool:
+    """
+    Set one Endress+Hauser TM311 temperature sensor to degrees Fahrenheit.
+
+    TM311 IO-Link parameter:
+      index 5121 (0x1401), Unit
+      32 = °C
+      33 = °F
+      35 = K
+    """
+    url = (
+        f"{HUB_URL}/iolink/v1/devices/{sensor_alias}"
+        "/parameters/5121/value"
+    )
+
+    fahrenheit_value = 33
+    payload = {
+        "value": list(fahrenheit_value.to_bytes(1, byteorder="big"))
+    }
+
+    try:
+        response = requests.post(
+            url,
+            json=payload,
+            auth=(HUB_USERNAME, HUB_PASSWORD),
+            timeout=5,
+        )
+
+        if not response.ok:
+            print(
+                f"Failed to set {sensor_alias} to °F: "
+                f"HTTP {response.status_code}"
+            )
+            print(f"Hub response: {response.text}")
+            return False
+
+        print(f"{sensor_alias} set to °F")
+        return True
+
+    except requests.RequestException as exc:
+        print(f"Request failed for {sensor_alias}: {exc}")
+        return False
+
+
+def set_temperature_units_fahrenheit() -> bool:
+    """
+    Set both TM311 water-temperature sensors to degrees Fahrenheit.
+
+    Returns True only if both writes succeed.
+    """
+    cold_success = _set_temperature_unit_fahrenheit(COLD_TEMP_ALIAS)
+    hot_success = _set_temperature_unit_fahrenheit(HOT_TEMP_ALIAS)
+
+    return cold_success and hot_success
+
 def _set_flow_unit_gpm(sensor_alias: str) -> bool:
     """Set one Picomag flow sensor to US gal/min."""
 
