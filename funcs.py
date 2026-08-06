@@ -20,7 +20,7 @@ HOT_PRESSURE_ALIAS = "master1port4"
 COLD_FLOW_SENSOR_ALIAS = "master1port5"
 HOT_FLOW_SENSOR_ALIAS = "master1port6"
 NEAR_AMBIENT_ALIAS = "master1port7"
-NEAR_AMBIENT_ALIAS = "master1port8"
+FAR_AMBIENT_ALIAS = "master1port8"
 
 
 # function for sizing UI window (viewport) based on primary monitor width and height
@@ -337,14 +337,107 @@ def get_hot_flow_value():
 def get_hot_flow_unit():
     return _get_picomag_flow_unit(HOT_FLOW_SENSOR_ALIAS)
 
+def _get_ambient_temp_rh(sensor_alias: str) -> str:
+    """
+    Return ambient temperature and relative humidity as "temp : RH".
+
+    The STEGO CSS 014 cyclic input is six bytes:
+      bytes 0-1: signed 16-bit temperature, scaled by 0.1
+      byte 2:    temperature status flags
+      bytes 3-4: signed 16-bit humidity, scaled by 0.1
+      byte 5:    humidity status flags
+
+    Parameter index 66 selects the temperature encoding:
+      0 = degrees Celsius
+      1 = degrees Fahrenheit
+
+    This function always returns temperature in degrees Fahrenheit.
+    """
+    process_url = (
+        f"{HUB_URL}/iolink/v1/devices/{sensor_alias}"
+        "/processdata/getdata/value?format=byteArray"
+    )
+    mode_url = (
+        f"{HUB_URL}/iolink/v1/devices/{sensor_alias}"
+        "/parameters/66/value/?format=byteArray"
+    )
+
+    try:
+        process_data = _get_byte_array(process_url)
+
+        if len(process_data) != 6:
+            raise ValueError(
+                f"Expected 6 CSS 014 process-data bytes, got {len(process_data)}."
+            )
+
+        raw_temperature = struct.unpack(">h", bytes(process_data[0:2]))[0]
+        raw_humidity = struct.unpack(">h", bytes(process_data[3:5]))[0]
+
+        temperature = raw_temperature / 10.0
+        humidity = raw_humidity / 10.0
+
+        mode_bytes = _get_byte_array(mode_url)
+        if len(mode_bytes) != 1:
+            raise ValueError(
+                f"Expected 1 CSS 014 temperature-mode byte, got {len(mode_bytes)}."
+            )
+
+        temperature_mode = mode_bytes[0]
+
+        if temperature_mode == 0:
+            temperature_f = temperature * 9.0 / 5.0 + 32.0
+        elif temperature_mode == 1:
+            temperature_f = temperature
+        else:
+            raise ValueError(
+                f"Unknown CSS 014 temperature mode: {temperature_mode}"
+            )
+
+        return f"{round(temperature_f, 1)} : {round(humidity, 1)}"
+
+    except Exception as exc:
+        print(f"Failed to read ambient temperature/RH from {sensor_alias}: {exc}")
+        return "UNKNOWN"
+
+
+def _get_ambient_temp_rh_unit(sensor_alias: str) -> str:
+    """
+    Return the stitched ambient-data units after confirming communication.
+    """
+    url = (
+        f"{HUB_URL}/iolink/v1/devices/{sensor_alias}"
+        "/processdata/getdata/value?format=byteArray"
+    )
+
+    try:
+        process_data = _get_byte_array(url)
+
+        if len(process_data) != 6:
+            raise ValueError(
+                f"Expected 6 CSS 014 process-data bytes, got {len(process_data)}."
+            )
+
+        return "°F : %RH"
+
+    except Exception as exc:
+        print(f"Failed to read ambient units from {sensor_alias}: {exc}")
+        return "offline"
+
+
 def get_temp_rh_near_value():
-    return '*****'
+    return _get_ambient_temp_rh(NEAR_AMBIENT_ALIAS)
+
+
 def get_temp_rh_near_unit():
-    return """offline"""
+    return _get_ambient_temp_rh_unit(NEAR_AMBIENT_ALIAS)
+
+
 def get_temp_rh_far_value():
-    return '*****'
+    return _get_ambient_temp_rh(FAR_AMBIENT_ALIAS)
+
+
 def get_temp_rh_far_unit():
-    return """offline"""
+    return _get_ambient_temp_rh_unit(FAR_AMBIENT_ALIAS)
 
 def _set_flow_unit_gpm(sensor_alias: str) -> bool:
     """Set one Picomag flow sensor to US gal/min."""
