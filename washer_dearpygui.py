@@ -39,18 +39,19 @@ table_row_height=0.15*table_height
 table_text_pad_v=(table_row_height-normal_font_height)/2
 
 # min/max for each parameter
-min_cold_water_temp=55 #°F
-max_cold_water_temp=65 #°F
-min_hot_water_temp=130 #°F
-max_hot_water_temp=135 #°F
+min_cold_water_temp=55.0 #°F
+max_cold_water_temp=65.0 #°F
+min_hot_water_temp=130.0 #°F
+max_hot_water_temp=135.0 #°F
 min_cold_water_pressure=32.5 #psig
 max_cold_water_pressure=37.5 #psig
 min_hot_water_pressure=32.5 #psig
 max_hot_water_pressure=37.5 #psig
-min_ambient_temp=70 #°F
-max_ambient_temp=80 #°F
-min_ambient_rh=40 #%RH
-max_ambient_rh=60 #%RH
+min_ambient_temp=70.0 #°F
+max_ambient_temp=80.0 #°F
+# %RH not evaluated, standard says just record deviations
+# min_ambient_rh=40.0 #%RH
+# max_ambient_rh=60.0 #%RH
 
 acceptable_range_list=[[min_cold_water_temp,max_cold_water_temp],
                        [min_hot_water_temp,max_hot_water_temp],
@@ -138,9 +139,9 @@ def worker():
             for port_num in range(8):
                 requested_value=get_value_functions[port_num]()
                 if port_num==6 or port_num==7:
-                    value_to_check=requested_value.split(':')[0]
+                    value_to_check=float(requested_value.split(':')[0])
                 else:
-                    value_to_check=requested_value
+                    value_to_check=float(requested_value)
                 dummy_file.write(f'{requested_value},')
                 dpg.set_value(f"X{port_num}_value",requested_value)
                 if value_to_check<acceptable_range_list[port_num][0] or value_to_check>acceptable_range_list[port_num][1]:
