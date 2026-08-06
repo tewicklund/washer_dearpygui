@@ -88,6 +88,14 @@ def worker():
             dpg.set_value(f"X{port_num}_unit",requested_unit)
         dummy_file.write('\n')
 
+    # wait for all of the unit fields to update and for the log file to initialize
+    for x in range(5):
+        countdown_string=f'Test starting in {5-x} seconds'
+        print(countdown_string)
+        dpg.set_value('status_text',countdown_string)
+        time.sleep(1)
+
+
         
     # main test loop
     x=0
