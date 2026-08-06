@@ -22,6 +22,9 @@ HOT_FLOW_SENSOR_ALIAS = "master1port6"
 NEAR_AMBIENT_ALIAS = "master1port7"
 FAR_AMBIENT_ALIAS = "master1port8"
 
+AMBIENT_TEMP_MODE_CACHE = {}
+AMBIENT_ONLINE_CACHE = {}
+
 
 # function for sizing UI window (viewport) based on primary monitor width and height
 def compute_window_size(width=None, height=None):
@@ -337,72 +340,41 @@ def get_hot_flow_value():
 def get_hot_flow_unit():
     return _get_picomag_flow_unit(HOT_FLOW_SENSOR_ALIAS)
 
-def _get_ambient_temp_rh(sensor_alias: str) -> str:
+def _get_ambient_temp_mode(sensor_alias: str) -> int:
     """
-    Return ambient temperature and relative humidity as "temp : RH".
+    Read and cache CSS 014 temperature mode.
 
-    The STEGO CSS 014 cyclic input is six bytes:
-      bytes 0-1: signed 16-bit temperature, scaled by 0.1
-      byte 2:    temperature status flags
-      bytes 3-4: signed 16-bit humidity, scaled by 0.1
-      byte 5:    humidity status flags
-
-    Parameter index 66 selects the temperature encoding:
-      0 = degrees Celsius
-      1 = degrees Fahrenheit
-
-    This function always returns temperature in degrees Fahrenheit.
+    0 = Celsius
+    1 = Fahrenheit
     """
-    process_url = (
-        f"{HUB_URL}/iolink/v1/devices/{sensor_alias}"
-        "/processdata/getdata/value?format=byteArray"
-    )
-    mode_url = (
+    if sensor_alias in AMBIENT_TEMP_MODE_CACHE:
+        return AMBIENT_TEMP_MODE_CACHE[sensor_alias]
+
+    url = (
         f"{HUB_URL}/iolink/v1/devices/{sensor_alias}"
         "/parameters/66/value/?format=byteArray"
     )
 
-    try:
-        process_data = _get_byte_array(process_url)
+    mode_bytes = _get_byte_array(url)
 
-        if len(process_data) != 6:
-            raise ValueError(
-                f"Expected 6 CSS 014 process-data bytes, got {len(process_data)}."
-            )
+    if len(mode_bytes) != 1:
+        raise ValueError(
+            f"Expected 1 temperature-mode byte, got {len(mode_bytes)}."
+        )
 
-        raw_temperature = struct.unpack(">h", bytes(process_data[0:2]))[0]
-        raw_humidity = struct.unpack(">h", bytes(process_data[3:5]))[0]
+    mode = mode_bytes[0]
 
-        temperature = raw_temperature / 10.0
-        humidity = raw_humidity / 10.0
+    if mode not in (0, 1):
+        raise ValueError(f"Unknown CSS 014 temperature mode: {mode}")
 
-        mode_bytes = _get_byte_array(mode_url)
-        if len(mode_bytes) != 1:
-            raise ValueError(
-                f"Expected 1 CSS 014 temperature-mode byte, got {len(mode_bytes)}."
-            )
-
-        temperature_mode = mode_bytes[0]
-
-        if temperature_mode == 0:
-            temperature_f = temperature * 9.0 / 5.0 + 32.0
-        elif temperature_mode == 1:
-            temperature_f = temperature
-        else:
-            raise ValueError(
-                f"Unknown CSS 014 temperature mode: {temperature_mode}"
-            )
-
-        return f"{round(temperature_f, 1)} : {round(humidity, 1)}"
-
-    except Exception as exc:
-        print(f"Failed to read ambient temperature/RH from {sensor_alias}: {exc}")
-        return "UNKNOWN"
+    AMBIENT_TEMP_MODE_CACHE[sensor_alias] = mode
+    return mode
 
 
-def _get_ambient_temp_rh_unit(sensor_alias: str) -> str:
+def _get_ambient_temp_rh(sensor_alias: str) -> str:
     """
-    Return the stitched ambient-data units after confirming communication.
+    Return ambient temperature and RH as "temperature : humidity".
+    Temperature is always returned in degrees Fahrenheit.
     """
     url = (
         f"{HUB_URL}/iolink/v1/devices/{sensor_alias}"
@@ -414,14 +386,49 @@ def _get_ambient_temp_rh_unit(sensor_alias: str) -> str:
 
         if len(process_data) != 6:
             raise ValueError(
-                f"Expected 6 CSS 014 process-data bytes, got {len(process_data)}."
+                f"Expected 6 CSS 014 process-data bytes, "
+                f"got {len(process_data)}."
             )
 
-        return "°F : %RH"
+        raw_temperature = struct.unpack(
+            ">h", bytes(process_data[0:2])
+        )[0]
+
+        raw_humidity = struct.unpack(
+            ">h", bytes(process_data[3:5])
+        )[0]
+
+        temperature = raw_temperature / 10.0
+        humidity = raw_humidity / 10.0
+
+        temperature_mode = _get_ambient_temp_mode(sensor_alias)
+
+        if temperature_mode == 0:
+            temperature_f = temperature * 9.0 / 5.0 + 32.0
+        else:
+            temperature_f = temperature
+
+        AMBIENT_ONLINE_CACHE[sensor_alias] = True
+
+        return f"{temperature_f:.1f} : {humidity:.1f}"
 
     except Exception as exc:
-        print(f"Failed to read ambient units from {sensor_alias}: {exc}")
-        return "offline"
+        AMBIENT_ONLINE_CACHE[sensor_alias] = False
+        print(
+            f"Failed to read ambient temperature/RH "
+            f"from {sensor_alias}: {exc}"
+        )
+        return "UNKNOWN"
+
+
+def _get_ambient_temp_rh_unit(sensor_alias: str) -> str:
+    """
+    Return the ambient units without making another HTTP request.
+    """
+    if AMBIENT_ONLINE_CACHE.get(sensor_alias, True):
+        return "°F : %RH"
+
+    return "offline"
 
 
 def get_temp_rh_near_value():
