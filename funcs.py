@@ -250,7 +250,7 @@ def _get_ptouch_pressure_unit(sensor_alias: str) -> str:
                 f"Expected 4 P.Touch process-data bytes, got {len(process_data)}."
             )
 
-        return "PSIG"
+        return "psig"
 
     except Exception as exc:
         print(f"Failed to read P.Touch unit from {sensor_alias}: {exc}")
